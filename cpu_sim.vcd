@@ -1,0 +1,412 @@
+$date
+	Thu Dec 11 15:52:34 2025
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module cpu_tb $end
+$var wire 4 ! reg3_out [3:0] $end
+$var wire 4 " reg2_out [3:0] $end
+$var wire 4 # reg1_out [3:0] $end
+$var wire 4 $ reg0_out [3:0] $end
+$var wire 4 % pc_out [3:0] $end
+$var wire 1 & halt $end
+$var reg 1 ' clk $end
+$var reg 1 ( rst $end
+$scope module cpu_inst $end
+$var wire 1 ' clk $end
+$var wire 4 ) pc_out [3:0] $end
+$var wire 2 * read_addr_a [1:0] $end
+$var wire 2 + read_addr_b [1:0] $end
+$var wire 4 , reg0_out [3:0] $end
+$var wire 4 - reg1_out [3:0] $end
+$var wire 4 . reg2_out [3:0] $end
+$var wire 4 / reg3_out [3:0] $end
+$var wire 1 ( rst $end
+$var wire 2 0 write_addr [1:0] $end
+$var wire 1 1 zero_flag $end
+$var wire 1 2 reg_write_enable $end
+$var wire 4 3 reg_read_b [3:0] $end
+$var wire 4 4 reg_read_a [3:0] $end
+$var wire 1 5 pc_load $end
+$var wire 1 6 pc_enable $end
+$var wire 4 7 pc [3:0] $end
+$var wire 8 8 instruction [7:0] $end
+$var wire 4 9 immediate [3:0] $end
+$var wire 1 & halt $end
+$var wire 4 : alu_result [3:0] $end
+$var wire 3 ; alu_op [2:0] $end
+$scope module alu_unit $end
+$var wire 4 < operand_b [3:0] $end
+$var wire 4 = operand_a [3:0] $end
+$var wire 3 > alu_op [2:0] $end
+$var parameter 3 ? ALU_ADD $end
+$var parameter 3 @ ALU_AND $end
+$var parameter 3 A ALU_OR $end
+$var parameter 3 B ALU_PASS $end
+$var parameter 3 C ALU_SUB $end
+$var parameter 3 D ALU_XOR $end
+$var reg 4 E result [3:0] $end
+$var reg 1 1 zero_flag $end
+$upscope $end
+$scope module control $end
+$var wire 1 ' clk $end
+$var wire 1 ( rst $end
+$var wire 1 1 zero_flag $end
+$var wire 4 F operand [3:0] $end
+$var wire 4 G opcode [3:0] $end
+$var wire 8 H instruction [7:0] $end
+$var parameter 4 I OP_ADD $end
+$var parameter 4 J OP_AND $end
+$var parameter 4 K OP_HALT $end
+$var parameter 4 L OP_JUMP $end
+$var parameter 4 M OP_LOAD $end
+$var parameter 4 N OP_OR $end
+$var parameter 4 O OP_STORE $end
+$var parameter 4 P OP_SUB $end
+$var parameter 2 Q STATE_DECODE $end
+$var parameter 2 R STATE_EXECUTE $end
+$var parameter 2 S STATE_FETCH $end
+$var parameter 2 T STATE_HALT $end
+$var reg 3 U alu_op [2:0] $end
+$var reg 1 & halt $end
+$var reg 1 6 pc_enable $end
+$var reg 1 5 pc_load $end
+$var reg 1 2 reg_write_enable $end
+$var reg 2 V state [1:0] $end
+$upscope $end
+$scope module imem $end
+$var wire 8 W instruction [7:0] $end
+$var wire 4 X address [3:0] $end
+$upscope $end
+$scope module pc_unit $end
+$var wire 1 ' clk $end
+$var wire 1 6 enable $end
+$var wire 1 5 load $end
+$var wire 4 Y load_addr [3:0] $end
+$var wire 1 ( rst $end
+$var reg 4 Z pc [3:0] $end
+$upscope $end
+$scope module reg_file $end
+$var wire 1 ' clk $end
+$var wire 2 [ read_addr_a [1:0] $end
+$var wire 2 \ read_addr_b [1:0] $end
+$var wire 4 ] read_data_a [3:0] $end
+$var wire 4 ^ read_data_b [3:0] $end
+$var wire 1 ( rst $end
+$var wire 2 _ write_addr [1:0] $end
+$var wire 4 ` write_data [3:0] $end
+$var wire 1 2 write_enable $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b11 T
+b0 S
+b10 R
+b1 Q
+b11 P
+b1 O
+b101 N
+b0 M
+b110 L
+b111 K
+b100 J
+b10 I
+b100 D
+b1 C
+b101 B
+b11 A
+b10 @
+b0 ?
+$end
+#0
+$dumpvars
+b101 `
+b0 _
+b0 ^
+b0 ]
+b1 \
+b0 [
+b0 Z
+b101 Y
+b0 X
+b101 W
+b0 V
+b0 U
+b101 H
+b0 G
+b101 F
+b101 E
+b0 >
+b0 =
+b101 <
+b0 ;
+b101 :
+b101 9
+b101 8
+b0 7
+06
+05
+b0 4
+b0 3
+02
+01
+b0 0
+b0 /
+b0 .
+b0 -
+b0 ,
+b1 +
+b0 *
+b0 )
+1(
+0'
+0&
+b0 %
+b0 $
+b0 #
+b0 "
+b0 !
+$end
+#5000
+1'
+#10000
+0'
+#15000
+1'
+#20000
+0'
+0(
+#25000
+b1 V
+1'
+#30000
+0'
+#35000
+11
+b0 :
+b0 E
+b0 `
+b0 V
+16
+12
+b101 ;
+b101 >
+b101 U
+1'
+#40000
+0'
+#45000
+b11 <
+b11 F
+b11 9
+b11 Y
+b1 V
+02
+06
+b11 8
+b11 H
+b11 W
+b1 %
+b1 )
+b1 7
+b1 X
+b1 Z
+1'
+#50000
+0'
+#55000
+b0 V
+16
+12
+1'
+#60000
+0'
+#65000
+b0 <
+b1 F
+b10 G
+b1 9
+b1 Y
+b1 V
+02
+06
+b100001 8
+b100001 H
+b100001 W
+b10 %
+b10 )
+b10 7
+b10 X
+b10 Z
+1'
+#70000
+0'
+#75000
+b0 V
+16
+12
+b0 ;
+b0 >
+b0 U
+1'
+#80000
+0'
+#85000
+01
+b10 :
+b10 E
+b10 `
+b10 <
+b10 F
+b0 G
+b10 9
+b10 Y
+b1 V
+02
+06
+b10 8
+b10 H
+b10 W
+b11 %
+b11 )
+b11 7
+b11 X
+b11 Z
+1'
+#90000
+0'
+#95000
+11
+b0 :
+b0 E
+b0 `
+b0 V
+16
+12
+b101 ;
+b101 >
+b101 U
+1'
+#100000
+0'
+#105000
+b0 <
+b11 G
+b1 V
+02
+06
+b110010 8
+b110010 H
+b110010 W
+b100 %
+b100 )
+b100 7
+b100 X
+b100 Z
+1'
+#110000
+0'
+#115000
+b0 V
+16
+12
+b1 ;
+b1 >
+b1 U
+1'
+#120000
+0'
+#125000
+b1 F
+b100 G
+b1 9
+b1 Y
+b1 V
+02
+06
+b1000001 8
+b1000001 H
+b1000001 W
+b101 %
+b101 )
+b101 7
+b101 X
+b101 Z
+1'
+#130000
+0'
+#135000
+b0 V
+16
+12
+b10 ;
+b10 >
+b10 U
+1'
+#140000
+0'
+#145000
+b101 G
+b1 V
+02
+06
+b1010001 8
+b1010001 H
+b1010001 W
+b110 %
+b110 )
+b110 7
+b110 X
+b110 Z
+1'
+#150000
+0'
+#155000
+b0 V
+16
+12
+b11 ;
+b11 >
+b11 U
+1'
+#160000
+0'
+#165000
+b0 F
+b111 G
+b0 9
+b0 Y
+b1 V
+02
+06
+b1110000 8
+b1110000 H
+b1110000 W
+b111 %
+b111 )
+b111 7
+b111 X
+b111 Z
+1'
+#170000
+0'
+#175000
+b11 V
+1&
+1'
+#180000
+0'
+#185000
+1'
+#190000
+0'
+#195000
+1'
+#196000

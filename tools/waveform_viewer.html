@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VCD Waveform Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #4ec9b0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .info-box {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .file-input-container {
+            background: #252526;
+            border: 2px dashed #4ec9b0;
+            border-radius: 5px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .file-input-container:hover {
+            border-color: #6fc9e0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-text {
+            color: #4ec9b0;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .waveform-container {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .signal-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #3e3e42;
+            padding-bottom: 10px;
+        }
+
+        .signal-name {
+            width: 150px;
+            color: #4ec9b0;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .signal-wave {
+            flex: 1;
+            height: 40px;
+            position: relative;
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 3px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .signal-value {
+            width: 100px;
+            text-align: right;
+            color: #ce9178;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .time-axis {
+            margin-left: 150px;
+            height: 30px;
+            position: relative;
+            border-top: 1px solid #3e3e42;
+            margin-top: 10px;
+        }
+
+        .time-marker {
+            position: absolute;
+            color: #858585;
+            font-size: 12px;
+            top: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+
+        button:hover {
+            background: #1177bb;
+        }
+
+        .table-view {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 5px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #3e3e42;
+        }
+
+        th {
+            background: #1e1e1e;
+            color: #4ec9b0;
+            font-weight: bold;
+        }
+
+        td {
+            color: #d4d4d4;
+        }
+
+        tr:hover {
+            background: #2a2d2e;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error {
+            background: #5a1d1d;
+            border: 1px solid #be1100;
+            color: #f48771;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌊 VCD Waveform Viewer</h1>
+        
+        <div class="info-box">
+            <p><strong>Instructions:</strong></p>
+            <p>1. Click the upload area below or drag & drop your <code>cpu_sim.vcd</code> file</p>
+            <p>2. View waveforms and signal values in your browser</p>
+            <p>3. No installation required - works on any Mac (M1/M2/Intel)!</p>
+        </div>
+
+        <div class="file-input-container" id="dropZone">
+            <div class="upload-text">📁 Click to select VCD file or drag & drop here</div>
+            <input type="file" id="fileInput" accept=".vcd">
+            <p style="color: #858585; margin-top: 10px;">Supports .vcd files from iverilog/vvp</p>
+        </div>
+
+        <div id="error" class="error hidden"></div>
+
+        <div id="controls" class="controls hidden">
+            <button onclick="showWaveform()">📊 Waveform View</button>
+            <button onclick="showTable()">📋 Table View</button>
+            <button onclick="exportData()">💾 Export CSV</button>
+        </div>
+
+        <div id="waveformView" class="waveform-container hidden">
+            <h2>Waveform View</h2>
+            <div id="waveforms"></div>
+            <div class="time-axis" id="timeAxis"></div>
+        </div>
+
+        <div id="tableView" class="table-view hidden">
+            <h2>Signal Values Table</h2>
+            <div id="tableContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let vcdData = null;
+
+        // File upload handling
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#6fc9e0';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '#4ec9b0';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#4ec9b0';
+            const file = e.dataTransfer.files[0];
+            if (file) processFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) processFile(file);
+        });
+
+        function processFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    vcdData = parseVCD(e.target.result);
+                    displayData();
+                    document.getElementById('controls').classList.remove('hidden');
+                    document.getElementById('error').classList.add('hidden');
+                } catch (err) {
+                    showError('Failed to parse VCD file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseVCD(content) {
+            const lines = content.split('\n');
+            const signals = {};
+            const values = {};
+            let currentTime = 0;
+            let inHeader = true;
+
+            for (let line of lines) {
+                line = line.trim();
+
+                if (line.startsWith('$var')) {
+                    const parts = line.split(/\s+/);
+                    if (parts.length >= 5) {
+                        const id = parts[3];
+                        const name = parts[4];
+                        signals[id] = name;
+                        values[name] = [];
+                    }
+                }
+
+                if (line.startsWith('$enddefinitions')) {
+                    inHeader = false;
+                }
+
+                if (line.startsWith('#') && !inHeader) {
+                    currentTime = parseInt(line.substring(1));
+                }
+
+                if (!inHeader && line && !line.startsWith('$') && !line.startsWith('#')) {
+                    if (line[0] === 'b') {
+                        const parts = line.split(/\s+/);
+                        if (parts.length >= 2) {
+                            const value = parts[0].substring(1);
+                            const id = parts[1];
+                            if (signals[id]) {
+                                values[signals[id]].push({ time: currentTime, value: value });
+                            }
+                        }
+                    } else if (line.length >= 2 && '01xz'.includes(line[0])) {
+                        const value = line[0];
+                        const id = line.substring(1);
+                        if (signals[id]) {
+                            values[signals[id]].push({ time: currentTime, value: value });
+                        }
+                    }
+                }
+            }
+
+            return values;
+        }
+
+        function displayData() {
+            showWaveform();
+        }
+
+        function showWaveform() {
+            document.getElementById('waveformView').classList.remove('hidden');
+            document.getElementById('tableView').classList.add('hidden');
+
+            const waveformsDiv = document.getElementById('waveforms');
+            waveformsDiv.innerHTML = '';
+
+            // Priority signals to display
+            const prioritySignals = ['clk', 'rst', 'pc', 'halt', 'reg0_out', 'reg1_out', 'reg2_out', 'reg3_out'];
+            const signalsToShow = [];
+
+            for (let priority of prioritySignals) {
+                for (let signal in vcdData) {
+                    if (signal.includes(priority) && !signalsToShow.includes(signal)) {
+                        signalsToShow.push(signal);
+                        break;
+                    }
+                }
+            }
+
+            // Get max time
+            let maxTime = 0;
+            for (let signal in vcdData) {
+                const times = vcdData[signal].map(v => v.time);
+                if (times.length > 0) {
+                    maxTime = Math.max(maxTime, ...times);
+                }
+            }
+
+            for (let signal of signalsToShow) {
+                const row = document.createElement('div');
+                row.className = 'signal-row';
+
+                const name = document.createElement('div');
+                name.className = 'signal-name';
+                name.textContent = signal.split('.').pop();
+
+                const waveDiv = document.createElement('div');
+                waveDiv.className = 'signal-wave';
+
+                const canvas = document.createElement('canvas');
+                canvas.width = 1000;
+                canvas.height = 40;
+                waveDiv.appendChild(canvas);
+
+                const value = document.createElement('div');
+                value.className = 'signal-value';
+                const lastValue = vcdData[signal][vcdData[signal].length - 1]?.value || '0';
+                try {
+                    const decimal = parseInt(lastValue, 2);
+                    value.textContent = isNaN(decimal) ? lastValue : `${decimal} (${lastValue})`;
+                } catch {
+                    value.textContent = lastValue;
+                }
+
+                row.appendChild(name);
+                row.appendChild(waveDiv);
+                row.appendChild(value);
+                waveformsDiv.appendChild(row);
+
+                drawWaveform(canvas, vcdData[signal], maxTime);
+            }
+
+            // Draw time axis
+            const timeAxis = document.getElementById('timeAxis');
+            timeAxis.innerHTML = '';
+            for (let t = 0; t <= maxTime; t += Math.ceil(maxTime / 10)) {
+                const marker = document.createElement('div');
+                marker.className = 'time-marker';
+                marker.textContent = t + 'ns';
+                marker.style.left = ((t / maxTime) * 100) + '%';
+                timeAxis.appendChild(marker);
+            }
+        }
+
+        function drawWaveform(canvas, values, maxTime) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.fillStyle = '#1e1e1e';
+            ctx.fillRect(0, 0, width, height);
+
+            if (values.length === 0) return;
+
+            // Check if single-bit signal
+            const isSingleBit = values.every(v => '01xz'.includes(v.value));
+
+            if (isSingleBit) {
+                // Draw digital waveform
+                ctx.strokeStyle = '#4ec9b0';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+
+                let currentValue = '0';
+                let lastX = 0;
+                let lastY = height - 5;
+
+                for (let i = 0; i < values.length; i++) {
+                    const x = (values[i].time / maxTime) * width;
+                    const y = values[i].value === '1' ? 5 : height - 5;
+
+                    // Vertical line
+                    ctx.moveTo(x, lastY);
+                    ctx.lineTo(x, y);
+
+                    // Horizontal line to next change
+                    if (i < values.length - 1) {
+                        const nextX = (values[i + 1].time / maxTime) * width;
+                        ctx.lineTo(nextX, y);
+                        lastX = nextX;
+                        lastY = y;
+                    } else {
+                        ctx.lineTo(width, y);
+                    }
+                }
+
+                ctx.stroke();
+            } else {
+                // Multi-bit signal - show value changes
+                ctx.fillStyle = '#ce9178';
+                ctx.font = '10px Courier New';
+                
+                for (let i = 0; i < Math.min(values.length, 20); i++) {
+                    const x = (values[i].time / maxTime) * width;
+                    try {
+                        const decimal = parseInt(values[i].value, 2);
+                        ctx.fillText(decimal.toString(), x + 2, height / 2);
+                    } catch {
+                        ctx.fillText(values[i].value.substring(0, 4), x + 2, height / 2);
+                    }
+
+                    // Draw vertical line
+                    ctx.strokeStyle = '#4ec9b0';
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function showTable() {
+            document.getElementById('waveformView').classList.add('hidden');
+            document.getElementById('tableView').classList.remove('hidden');
+
+            const tableContent = document.getElementById('tableContent');
+            
+            // Get all unique time points
+            const allTimes = new Set();
+            for (let signal in vcdData) {
+                vcdData[signal].forEach(v => allTimes.add(v.time));
+            }
+            const times = Array.from(allTimes).sort((a, b) => a - b).slice(0, 100);
+
+            // Create table
+            let html = '<table><thead><tr><th>Time (ns)</th>';
+            const signals = Object.keys(vcdData).slice(0, 8);
+            
+            signals.forEach(signal => {
+                html += `<th>${signal.split('.').pop()}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            const signalValues = {};
+            signals.forEach(sig => {
+                signalValues[sig] = {};
+                vcdData[sig].forEach(v => {
+                    signalValues[sig][v.time] = v.value;
+                });
+            });
+
+            const currentValues = {};
+            signals.forEach(sig => currentValues[sig] = '0');
+
+            times.forEach(time => {
+                html += `<tr><td>${time}</td>`;
+                
+                signals.forEach(sig => {
+                    if (signalValues[sig][time] !== undefined) {
+                        currentValues[sig] = signalValues[sig][time];
+                    }
+                    
+                    let displayValue = currentValues[sig];
+                    try {
+                        const decimal = parseInt(displayValue, 2);
+                        if (!isNaN(decimal)) {
+                            displayValue = `${decimal} (${displayValue})`;
+                        }
+                    } catch {}
+                    
+                    html += `<td>${displayValue}</td>`;
+                });
+                
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            tableContent.innerHTML = html;
+        }
+
+        function exportData() {
+            let csv = 'Time(ns)';
+            const signals = Object.keys(vcdData);
+            signals.forEach(sig => csv += ',' + sig);
+            csv += '\n';
+
+            const allTimes = new Set();
+            for (let signal in vcdData) {
+                vcdData[signal].forEach(v => allTimes.add(v.time));
+            }
+            const times = Array.from(allTimes).sort((a, b) => a - b);
+
+            times.forEach(time => {
+                csv += time;
+                signals.forEach(sig => {
+                    const entry = vcdData[sig].find(v => v.time === time);
+                    csv += ',' + (entry ? entry.value : '');
+                });
+                csv += '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'waveform_data.csv';
+            a.click();
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
