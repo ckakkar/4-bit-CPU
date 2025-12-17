@@ -18,14 +18,16 @@ module control_unit (
     wire [3:0] operand = instruction[3:0];
     
     // Opcode definitions
-    localparam OP_LOAD = 4'b0000;  // Load immediate value
-    localparam OP_STORE = 4'b0001; // Store (not implemented in this simple version)
-    localparam OP_ADD  = 4'b0010;  // Add
-    localparam OP_SUB  = 4'b0011;  // Subtract
-    localparam OP_AND  = 4'b0100;  // Bitwise AND
-    localparam OP_OR   = 4'b0101;  // Bitwise OR
+    localparam OP_LOAD = 4'b0000;  // Load immediate value into R0
+    localparam OP_STORE = 4'b0001; // Store (reserved, not used here)
+    localparam OP_ADD  = 4'b0010;  // R0 <- R0 + R1
+    localparam OP_SUB  = 4'b0011;  // R0 <- R0 - R1
+    localparam OP_AND  = 4'b0100;  // R0 <- R0 & R1
+    localparam OP_OR   = 4'b0101;  // R0 <- R0 | R1
     localparam OP_JUMP = 4'b0110;  // Unconditional jump
     localparam OP_HALT = 4'b0111;  // Halt execution
+    localparam OP_JZ   = 4'b1000;  // Jump if last result was zero
+    localparam OP_JNZ  = 4'b1001;  // Jump if last result was non-zero
     
     // State machine for instruction execution
     localparam STATE_FETCH = 2'b00;
@@ -34,6 +36,7 @@ module control_unit (
     localparam STATE_HALT = 2'b11;
     
     reg [1:0] state;
+    reg       last_zero;           // Latched copy of the ALU zero flag
     
     always @(posedge clk or posedge rst) begin
         if (rst) begin
@@ -43,6 +46,7 @@ module control_unit (
             reg_write_enable <= 0;
             alu_op <= 3'b000;
             halt <= 0;
+            last_zero <= 1'b0;
         end else begin
             case (state)
                 STATE_FETCH: begin
@@ -62,6 +66,7 @@ module control_unit (
                             reg_write_enable <= 1;
                             pc_enable <= 1;
                             pc_load <= 0;
+                            last_zero <= zero_flag;
                             state <= STATE_FETCH;
                         end
                         
@@ -71,6 +76,7 @@ module control_unit (
                             reg_write_enable <= 1;
                             pc_enable <= 1;
                             pc_load <= 0;
+                            last_zero <= zero_flag;
                             state <= STATE_FETCH;
                         end
                         
@@ -80,6 +86,7 @@ module control_unit (
                             reg_write_enable <= 1;
                             pc_enable <= 1;
                             pc_load <= 0;
+                            last_zero <= zero_flag;
                             state <= STATE_FETCH;
                         end
                         
@@ -89,6 +96,7 @@ module control_unit (
                             reg_write_enable <= 1;
                             pc_enable <= 1;
                             pc_load <= 0;
+                            last_zero <= zero_flag;
                             state <= STATE_FETCH;
                         end
                         
@@ -98,13 +106,40 @@ module control_unit (
                             reg_write_enable <= 1;
                             pc_enable <= 1;
                             pc_load <= 0;
+                            last_zero <= zero_flag;
                             state <= STATE_FETCH;
                         end
                         
                         OP_JUMP: begin
-                            // Jump to address
+                            // Unconditional jump to address in operand
                             pc_load <= 1;
                             pc_enable <= 0;
+                            reg_write_enable <= 0;
+                            state <= STATE_FETCH;
+                        end
+
+                        OP_JZ: begin
+                            // Jump if last ALU result was zero
+                            if (last_zero) begin
+                                pc_load <= 1;
+                                pc_enable <= 0;
+                            end else begin
+                                pc_load <= 0;
+                                pc_enable <= 1;
+                            end
+                            reg_write_enable <= 0;
+                            state <= STATE_FETCH;
+                        end
+
+                        OP_JNZ: begin
+                            // Jump if last ALU result was non-zero
+                            if (!last_zero) begin
+                                pc_load <= 1;
+                                pc_enable <= 0;
+                            end else begin
+                                pc_load <= 0;
+                                pc_enable <= 1;
+                            end
                             reg_write_enable <= 0;
                             state <= STATE_FETCH;
                         end

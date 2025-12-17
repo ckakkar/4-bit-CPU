@@ -70,6 +70,19 @@ module cpu_tb;
                 $display("  R2 = %d (binary: %b)", reg2_out, reg2_out);
                 $display("  R3 = %d (binary: %b)", reg3_out, reg3_out);
                 $display("=================================================");
+
+                // Basic self-check: this should match the program in instruction_memory.v
+                if (reg0_out !== 4'd0 ||
+                    reg1_out !== 4'd1 ||
+                    reg2_out !== 4'd0 ||
+                    reg3_out !== 4'd0) begin
+                    $display("TEST FAILED: unexpected register contents.");
+                    $display("  Expected R0=0, R1=1, R2=0, R3=0");
+                    $fatal(1);
+                end else begin
+                    $display("TEST PASSED: registers match expected values.");
+                end
+
                 #20;
                 $finish;
             end

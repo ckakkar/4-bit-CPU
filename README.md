@@ -269,38 +269,41 @@ Each instruction is 8 bits: the upper 4 bits are the opcode, the lower 4 bits ar
 
 ### Implemented Instructions
 
-| Opcode | Mnemonic | Description                    | Example           |
-|--------|----------|--------------------------------|-------------------|
-| 0000   | LOAD     | Load immediate into `R0`      | `0000_0101`       |
-| 0010   | ADD      | `R0 ← R0 + R1`                | `0010_0001`       |
-| 0011   | SUB      | `R0 ← R0 - R1`                | `0011_0010`       |
-| 0100   | AND      | `R0 ← R0 & R1`                | `0100_0001`       |
-| 0101   | OR       | `R0 ← R0 | R1`                | `0101_0001`       |
-| 0110   | JUMP     | `PC ← address`                | `0110_0011`       |
-| 0111   | HALT     | Stop execution                | `0111_0000`       |
+| Opcode | Mnemonic | Description                           | Example           |
+|--------|----------|---------------------------------------|-------------------|
+| 0000   | LOAD     | Load 4‑bit immediate into `R0`       | `0000_0101`       |
+| 0010   | ADD      | `R0 ← R0 + R1`                       | `0010_0001`       |
+| 0011   | SUB      | `R0 ← R0 - R1`                       | `0011_0010`       |
+| 0100   | AND      | `R0 ← R0 & R1`                       | `0100_0001`       |
+| 0101   | OR       | `R0 ← R0 | R1`                       | `0101_0001`       |
+| 0110   | JUMP     | `PC ← address` (unconditional)       | `0110_0011`       |
+| 0111   | HALT     | Stop execution                       | `0111_0000`       |
+| 1000   | JZ       | Jump if last result was zero         | `1000_0111`       |
+| 1001   | JNZ      | Jump if last result was non‑zero     | `1001_0111`       |
 
-This is just enough to write a few tiny arithmetic and branching examples without burying you in decoding logic.
+The control unit keeps a small latched copy of the ALU’s zero flag so that `JZ` / `JNZ` can make decisions based on the most recent arithmetic/logic instruction.
 
 ---
 
 ## The Demo Program
 
-`rtl/instruction_memory.v` comes preloaded with a short program. Here it is in a more readable form:
+`rtl/instruction_memory.v` comes preloaded with a small program that hits arithmetic, a couple of branches, and HALT. In table form:
 
 ```text
-Address | Binary       | Assembly       | Effect
---------|--------------|----------------|----------------------
-   0    | 0000_0105    | LOAD R0, 5     | R0 = 5
-   1    | 0000_0011    | LOAD R1, 3     | R1 = 3
-   2    | 0010_0001    | ADD R0, R1     | R0 = 8 (5 + 3)
-   3    | 0000_0010    | LOAD R2, 2     | R2 = 2
-   4    | 0011_0010    | SUB R0, R2     | R0 = 6 (8 - 2)
-   5    | 0100_0001    | AND R0, R1     | R0 = 2 (6 & 3)
-   6    | 0101_0001    | OR  R0, R1     | R0 = 3 (2 | 3)
-   7    | 0111_0000    | HALT           | stop
+Address | Binary       | Assembly        | Effect
+--------|--------------|-----------------|-------------------------------
+   0    | 0000_0000    | LOAD R0, 0      | R0 = 0
+   1    | 0000_0001    | LOAD R1, 1      | R1 = 1
+   2    | 0010_0001    | ADD  R0, R1     | R0 = 1, last_zero = 0
+   3    | 1000_0111    | JZ   7          | not taken (last_zero = 0)
+   4    | 0011_0001    | SUB  R0, R1     | R0 = 0, last_zero = 1
+   5    | 1001_0111    | JNZ  7          | not taken (last_zero = 1)
+   6    | 1000_1000    | JZ   8          | taken   (last_zero = 1)
+   7    | 0000_0011    | LOAD R0, 3      | skipped
+   8    | 0111_0000    | HALT            | stop
 ```
 
-If you run `make simulate` right after cloning, the printout in the terminal is this program executing.
+If you run `make simulate` right after cloning, the printout in the terminal is this program executing. The self‑checking testbench will also assert that the final register state is `R0=0, R1=1, R2=0, R3=0`.
 
 ---
 
