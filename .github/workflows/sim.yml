@@ -1,0 +1,36 @@
+name: CPU simulation
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog
+
+      - name: Run simulation
+        run: |
+          make simulate
+
+      - name: Show a few lines of the trace
+        if: always()
+        run: |
+          echo
+          echo "Last 20 lines of simulation output (if any):"
+          echo "-------------------------------------------"
+          # vvp prints directly; re-run quickly without re-compiling to capture output, but don't fail if it does
+          if [ -f cpu_sim.vvp ]; then
+            vvp cpu_sim.vvp | tail -n 20 || true
+          fi
+
