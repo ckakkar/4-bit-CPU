@@ -1,5 +1,5 @@
-// cpu_tb.v - CPU Testbench
-// Simulates the CPU and generates waveforms for debugging
+// cpu_tb.v - simple CPU testbench
+// Drives the core, dumps a VCD and prints a small execution trace
 
 `timescale 1ns/1ps
 

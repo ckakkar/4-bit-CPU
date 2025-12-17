@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""
-VCD Viewer - Convert VCD waveforms to readable text format
-Works on any system with Python 3
+"""Small VCD-to-text helper.
+
+Reads a VCD file (e.g. cpu_sim.vcd) and prints a compact table plus a few
+ASCII-style waveforms so you can sanity-check a run from the terminal.
 """
 
 import sys

@@ -1,5 +1,5 @@
-// instruction_memory.v - Instruction Memory
-// Stores the program instructions (ROM - Read Only Memory)
+// instruction_memory.v - program ROM
+// Holds the tiny demo program executed by the CPU
 
 module instruction_memory (
     input  [3:0] address,         // Instruction address (4 bits = 16 instructions max)

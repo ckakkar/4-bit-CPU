@@ -1,5 +1,5 @@
-// register_file.v - Register File
-// Contains 4 registers (R0, R1, R2, R3) that store 4-bit values
+// register_file.v - 4x4 register file
+// Four 4-bit registers (R0–R3) with two read ports and one write port
 
 module register_file (
     input clk,                    // Clock signal

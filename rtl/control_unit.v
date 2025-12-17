@@ -1,5 +1,5 @@
-// control_unit.v - Control Unit
-// Decodes instructions and generates control signals for other components
+// control_unit.v - simple control unit
+// Decodes the 8-bit instruction and drives the rest of the core
 
 module control_unit (
     input clk,                    // Clock signal

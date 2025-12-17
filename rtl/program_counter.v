@@ -1,5 +1,5 @@
-// program_counter.v - Program Counter
-// Keeps track of the current instruction address
+// program_counter.v - program counter
+// Tracks which instruction the core is currently fetching
 
 module program_counter (
     input clk,                    // Clock signal

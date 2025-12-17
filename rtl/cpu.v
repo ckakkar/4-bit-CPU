@@ -1,5 +1,5 @@
-// cpu.v - Top-Level CPU Module
-// Connects all components: ALU, Register File, Program Counter, Instruction Memory, Control Unit
+// cpu.v - top level CPU
+// Wires up the ALU, register file, program counter, instruction memory and control unit
 
 module cpu (
     input clk,              // Clock signal

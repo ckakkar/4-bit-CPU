@@ -1,5 +1,5 @@
-// alu.v - Arithmetic Logic Unit
-// Performs arithmetic and logical operations
+// alu.v - arithmetic / logic unit
+// Small 4-bit ALU used by the CPU core
 
 module alu (
     input  [3:0] operand_a,      // First operand (4 bits)
