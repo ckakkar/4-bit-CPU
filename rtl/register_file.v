@@ -10,7 +10,16 @@ module register_file (
     input  [2:0] write_addr,      // Address of register to write to
     input  [7:0] write_data,      // Data to write (8 bits)
     output [7:0] read_data_a,     // Data read from first register
-    output [7:0] read_data_b      // Data read from second register
+    output [7:0] read_data_b,     // Data read from second register
+    // Debug outputs for register values
+    output [7:0] reg0_out,
+    output [7:0] reg1_out,
+    output [7:0] reg2_out,
+    output [7:0] reg3_out,
+    output [7:0] reg4_out,
+    output [7:0] reg5_out,
+    output [7:0] reg6_out,
+    output [7:0] reg7_out
 );
 
     // 8 registers, each 8 bits wide
@@ -38,5 +47,15 @@ module register_file (
             registers[write_addr] <= write_data;
         end
     end
+    
+    // Debug outputs
+    assign reg0_out = registers[0];
+    assign reg1_out = registers[1];
+    assign reg2_out = registers[2];
+    assign reg3_out = registers[3];
+    assign reg4_out = registers[4];
+    assign reg5_out = registers[5];
+    assign reg6_out = registers[6];
+    assign reg7_out = registers[7];
 
 endmodule

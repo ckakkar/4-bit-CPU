@@ -62,6 +62,9 @@ module cpu (
     );
     
     // Register File (8 registers, 8-bit wide)
+    wire [7:0] reg0_debug, reg1_debug, reg2_debug, reg3_debug;
+    wire [7:0] reg4_debug, reg5_debug, reg6_debug, reg7_debug;
+    
     register_file reg_file (
         .clk(clk),
         .rst(rst),
@@ -71,7 +74,15 @@ module cpu (
         .write_addr(reg_dest_addr),
         .write_data(reg_write_data),  // Selected write data (memory or ALU)
         .read_data_a(reg_read_a),
-        .read_data_b(reg_read_b)
+        .read_data_b(reg_read_b),
+        .reg0_out(reg0_debug),
+        .reg1_out(reg1_debug),
+        .reg2_out(reg2_debug),
+        .reg3_out(reg3_debug),
+        .reg4_out(reg4_debug),
+        .reg5_out(reg5_debug),
+        .reg6_out(reg6_debug),
+        .reg7_out(reg7_debug)
     );
     
     // Data Memory (separate from instruction memory - Harvard architecture)
@@ -124,13 +135,13 @@ module cpu (
     assign pc_out = pc;
     
     // Connect register outputs for debugging (all 8 registers)
-    assign reg0_out = reg_file.registers[0];
-    assign reg1_out = reg_file.registers[1];
-    assign reg2_out = reg_file.registers[2];
-    assign reg3_out = reg_file.registers[3];
-    assign reg4_out = reg_file.registers[4];
-    assign reg5_out = reg_file.registers[5];
-    assign reg6_out = reg_file.registers[6];
-    assign reg7_out = reg_file.registers[7];
+    assign reg0_out = reg0_debug;
+    assign reg1_out = reg1_debug;
+    assign reg2_out = reg2_debug;
+    assign reg3_out = reg3_debug;
+    assign reg4_out = reg4_debug;
+    assign reg5_out = reg5_debug;
+    assign reg6_out = reg6_debug;
+    assign reg7_out = reg7_debug;
     
 endmodule
