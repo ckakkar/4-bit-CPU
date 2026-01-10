@@ -9,18 +9,43 @@ module control_unit (
     input carry_flag,             // Carry flag from ALU
     input overflow_flag,          // Overflow flag from ALU
     input negative_flag,          // Negative flag from ALU
+    // Interrupt signals
+    input interrupt_request,      // Interrupt request from interrupt controller
+    input [7:0] interrupt_vector, // Interrupt vector address
+    // ALU/Multiplier/Divider results
+    input [7:0] alu_result,
+    input [15:0] mul_result,      // Multiply result (16-bit)
+    input mul_valid,              // Multiply result valid
+    // Standard control outputs
     output reg pc_enable,         // Enable PC increment
-    output reg pc_load,           // Load new PC value (for jumps)
+    output reg pc_load,           // Load new PC value (for jumps/branches/interrupts)
     output reg reg_write_enable,  // Enable register write
     output reg mem_write_enable,  // Enable memory write
     output reg [3:0] alu_op,      // ALU operation select (expanded to 4 bits)
     output reg [2:0] reg1_addr,   // Source register 1 address
     output reg [2:0] reg2_addr,   // Source register 2 address
     output reg [2:0] reg_dest_addr, // Destination register address
-    output reg [7:0] immediate,   // Immediate value (sign-extended from 6-bit)
+    output reg [7:0] immediate,   // Immediate value (8-bit or extended)
+    output reg [15:0] immediate_16, // Extended 16-bit immediate
     output reg use_immediate,     // Use immediate as ALU operand
+    output reg use_extended_imm,  // Use extended 16-bit immediate
     output reg mem_addr_sel,      // Select memory address source (reg vs immediate)
     output reg load_from_mem,     // Load register from memory (for LOAD instruction)
+    // Stack operations
+    output reg stack_push,        // Push to stack
+    output reg stack_pop,         // Pop from stack
+    // Multiplier/Divider
+    output reg mul_start,         // Start multiply operation
+    output reg div_start,         // Start divide operation
+    output reg use_multiplier,    // Use multiplier result instead of ALU
+    // I/O operations
+    output reg io_read,           // Read from I/O port
+    output reg io_write,          // Write to I/O port
+    output reg use_io,            // Use I/O instead of memory
+    // Interrupt control
+    output reg interrupt_ack,     // Acknowledge interrupt
+    output reg interrupt_ret,     // Return from interrupt (RETI)
+    output reg interrupt_enable,  // Global interrupt enable
     output halt                   // Halt signal (stop CPU)
 );
 
@@ -51,6 +76,18 @@ module control_unit (
     // Special opcode pattern for HALT: opcode=1111, all other fields = 0
     localparam OP_HALT  = 4'b1111; // HALT              - Halt execution (when imm=0, reg1=0, reg2=0)
     localparam OP_NOP   = 4'b1111; // NOP               - No operation (special case)
+    
+    // Extended instruction set opcodes (using reserved opcodes or extended format)
+    // Note: Since we only have 16 opcodes (4 bits), we'll use immediate field to extend
+    // For full implementation, use 32-bit instruction format
+    localparam OP_PUSH  = 4'b1110; // PUSH Rs           - Push register to stack (uses reg1 as source, reg2=0)
+    localparam OP_POP   = 4'b1110; // POP Rd            - Pop from stack to register (uses reg1 as dest, reg2=1)
+    localparam OP_MUL   = 4'b1101; // MUL Rd, Rs1, Rs2  - Multiply: Rd = Rs1 × Rs2 (16-bit result in Rd:Rd+1)
+    localparam OP_DIV   = 4'b1101; // DIV Rd, Rs1, Rs2  - Divide: Rd = Rs1 / Rs2, Rd+1 = Rs1 % Rs2
+    localparam OP_LOADI16 = 4'b0000; // LOADI16 Rd, imm16 - Load 16-bit immediate (uses extended format)
+    localparam OP_IN    = 4'b1110; // IN Rd, [io_addr]  - Read from I/O port (uses reg1=dest, reg2=io_addr)
+    localparam OP_OUT   = 4'b1110; // OUT [io_addr], Rs - Write to I/O port (uses reg1=src, reg2=io_addr)
+    localparam OP_RETI  = 4'b1111; // RETI              - Return from interrupt (special: opcode=1111, imm=1)
     
     // State machine for instruction execution
     localparam STATE_FETCH = 2'b00;

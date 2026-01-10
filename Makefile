@@ -29,6 +29,19 @@ RTL_FILES_PIPELINED = $(RTL_DIR)/alu.v \
                       $(RTL_DIR)/control_unit_pipelined.v \
                       $(RTL_DIR)/cpu_pipelined.v
 
+# Files - Enhanced CPU (stack, multiplier, I/O, interrupts)
+RTL_FILES_ENHANCED = $(RTL_DIR)/alu.v \
+                     $(RTL_DIR)/register_file.v \
+                     $(RTL_DIR)/program_counter.v \
+                     $(RTL_DIR)/instruction_memory.v \
+                     $(RTL_DIR)/data_memory.v \
+                     $(RTL_DIR)/stack_unit.v \
+                     $(RTL_DIR)/multiplier_divider.v \
+                     $(RTL_DIR)/memory_mapped_io.v \
+                     $(RTL_DIR)/interrupt_controller.v \
+                     $(RTL_DIR)/instruction_format_extended.v \
+                     $(RTL_DIR)/cpu_enhanced.v
+
 TB_FILE = $(SIM_DIR)/cpu_tb.v
 
 # Output files
@@ -36,6 +49,8 @@ VVP_FILE = cpu_sim.vvp
 VCD_FILE = cpu_sim.vcd
 VVP_FILE_PIPELINED = cpu_pipelined_sim.vvp
 VCD_FILE_PIPELINED = cpu_pipelined_sim.vcd
+VVP_FILE_ENHANCED = cpu_enhanced_sim.vvp
+VCD_FILE_ENHANCED = cpu_enhanced_sim.vcd
 
 # Default target
 all: simulate
@@ -110,10 +125,30 @@ simulate-pipelined: compile-pipelined
 	@echo "Simulation complete! VCD file generated: $(VCD_FILE_PIPELINED)"
 	@echo ""
 
+# Compile enhanced CPU
+compile-enhanced:
+	@echo "==================================================="
+	@echo "Compiling Enhanced CPU with iverilog..."
+	@echo "==================================================="
+	iverilog -g2012 -o $(VVP_FILE_ENHANCED) $(RTL_FILES_ENHANCED) $(SIM_DIR)/cpu_tb.v
+	@echo "Compilation successful!"
+	@echo ""
+
+# Simulate enhanced CPU
+simulate-enhanced: compile-enhanced
+	@echo "==================================================="
+	@echo "Running enhanced CPU simulation..."
+	@echo "==================================================="
+	vvp $(VVP_FILE_ENHANCED)
+	@echo ""
+	@echo "Simulation complete! VCD file generated: $(VCD_FILE_ENHANCED)"
+	@echo ""
+
 # Clean all generated files
 clean-all:
 	@echo "Cleaning all generated files..."
-	rm -f $(VVP_FILE) $(VCD_FILE) $(VVP_FILE_PIPELINED) $(VCD_FILE_PIPELINED)
+	rm -f $(VVP_FILE) $(VCD_FILE) $(VVP_FILE_PIPELINED) $(VCD_FILE_PIPELINED) \
+	      $(VVP_FILE_ENHANCED) $(VCD_FILE_ENHANCED)
 	@echo "Clean complete!"
 
 # Help
@@ -128,6 +163,10 @@ help:
 	@echo "make compile-pipelined  - Compile pipelined CPU"
 	@echo "make simulate-pipelined - Run pipelined CPU simulation"
 	@echo ""
+	@echo "Enhanced CPU (stack, multiplier, I/O, interrupts):"
+	@echo "make compile-enhanced   - Compile enhanced CPU"
+	@echo "make simulate-enhanced  - Run enhanced CPU simulation"
+	@echo ""
 	@echo "Waveform Viewers (choose one):"
 	@echo "make wave      - View in terminal (text-based, works everywhere)"
 	@echo "make web-wave  - View in browser (recommended for Mac M2)"
@@ -137,4 +176,4 @@ help:
 	@echo "make clean-all - Remove all generated files"
 	@echo "make help      - Show this help message"
 
-.PHONY: all compile simulate wave web-wave gtkwave clean compile-pipelined simulate-pipelined clean-all help
+.PHONY: all compile simulate wave web-wave gtkwave clean compile-pipelined simulate-pipelined compile-enhanced simulate-enhanced clean-all help
