@@ -1,6 +1,6 @@
-# Simple 4-Bit CPU Project
+# Enhanced 8-Bit CPU Project
 
-A small 4‑bit CPU core and testbench, meant as a first hands‑on hardware project. It uses plain Verilog, Icarus Verilog for simulation, and a couple of simple viewers for looking at the waveforms.
+An enhanced 8‑bit CPU core with expanded instruction set, data memory, and advanced ALU operations. Originally based on a simple 4‑bit design, this version features a Harvard architecture with separate instruction and data memories, 8 registers, and comprehensive status flags. Uses plain Verilog, Icarus Verilog for simulation, and waveform viewers for analysis.
 
 ---
 
@@ -93,12 +93,13 @@ simple-cpu-project/
 ├── README.md
 │
 ├── rtl/                     # RTL design
-│   ├── alu.v
-│   ├── register_file.v
-│   ├── program_counter.v
-│   ├── instruction_memory.v
-│   ├── control_unit.v
-│   └── cpu.v                # top level
+│   ├── alu.v                # Enhanced 8-bit ALU with status flags
+│   ├── register_file.v      # 8-register file (8-bit wide)
+│   ├── program_counter.v    # 8-bit program counter
+│   ├── instruction_memory.v # 256 x 16-bit instruction ROM
+│   ├── data_memory.v        # 256 x 8-bit data RAM (Harvard architecture)
+│   ├── control_unit.v       # Instruction decoder and control
+│   └── cpu.v                # Top level CPU module
 │
 ├── sim/
 │   └── cpu_tb.v             # testbench
@@ -141,14 +142,22 @@ You should see output along these lines (exact numbers may differ if you change 
 
 ```text
 =================================================
-    Simple 4-bit CPU Simulation
+    Enhanced 8-bit CPU Simulation
 =================================================
-Time(ns) | PC | Halt | R0 | R1 | R2 | R3 | Instruction
+Time(ns) | PC | Halt | R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7 | Instruction
 -------------------------------------------------
-     25 |  0 |   0  |  0 |  0 |  0 |  0 | 00000101
-     35 |  1 |   0  |  5 |  0 |  0 |  0 | 00000011
-     45 |  2 |   0  |  5 |  3 |  0 |  0 | 00100001
-     55 |  3 |   0  |  8 |  3 |  0 |  0 | 00000010
+  26000 |   0 |   0  |   0 |   0 |   0 |   0 |   0 |   0 |   0 |   0 | 0205
+  36000 |   1 |   0  |   0 |   5 |   0 |   0 |   0 |   0 |   0 |   0 | 040a
+  66000 |   2 |   0  |   0 |   5 |  10 |   0 |   0 |   0 |   0 |   0 | 1280
+  86000 |   3 |   0  |   0 |   5 |  15 |   0 |   0 |   0 |   0 |   0 | 2440
+ 106000 |   4 |   0  |   0 |  10 |  15 |   0 |   0 |   0 |   0 |   0 | 0632
+ 166000 |   7 |   0  |   0 |  10 |  15 |  50 |  10 |   0 |   0 |   0 | 3280
+ 226000 |  11 |   0  |   0 |  10 |  10 |  50 |  10 |  42 |   0 |   0 | f000
+-------------------------------------------------
+CPU HALTED at time 236000 ns
+Final Register Values:
+  R0 =   0, R1 =  10, R2 =  10, R3 =  50
+  R4 =  10, R5 =  42, R6 =   0, R7 =   0
 ```
 
 ---
@@ -212,46 +221,59 @@ You can use this screenshot as a sanity check if your own waveforms look very di
 
 ## CPU Architecture (High Level)
 
-The CPU is intentionally simple:
+The CPU features an enhanced architecture:
 
-- 4‑bit datapath (all registers and the ALU are 4 bits wide)
-- 4 general‑purpose registers (`R0`–`R3`)
-- 16‑entry instruction memory, 8 bits per instruction
-- a program counter that either increments or jumps to a given address
-- a small ALU (ADD, SUB, AND, OR, XOR, pass‑through)
-- a control unit implemented as a finite‑state machine
+- **8-bit datapath** - All registers, ALU, and data paths are 8 bits wide
+- **8 general-purpose registers** (`R0`–`R7`) - Each 8 bits wide
+- **Harvard architecture** - Separate instruction and data memories
+  - Instruction memory: 256 locations × 16 bits (8-bit address, 16-bit instruction)
+  - Data memory: 256 locations × 8 bits (8-bit address, 8-bit data)
+- **8-bit program counter** - Supports up to 256 instruction addresses
+- **Enhanced ALU** - 14 operations including arithmetic, logic, shifts, and comparisons
+- **Status flags** - Zero, carry, overflow, and negative flags
+- **16-bit instruction format** - Allows register addressing and immediate values
+- **Control unit** - State machine-based instruction decoder and execution controller
 
-A very rough block diagram looks like this:
+Block diagram:
 
 ```text
-┌─────────────────────────────────────────┐
-│              4-BIT CPU                 │
-│                                         │
-│  ┌──────────┐                           │
-│  │ Program  │                           │
-│  │ Counter  │────┐                      │
-│  └──────────┘    │                      │
-│       ↑          ↓                      │
-│       │   ┌─────────────┐              │
-│       │   │Instruction  │              │
-│       │   │   Memory    │              │
-│       │   └─────────────┘              │
-│       │          │                      │
-│       │          ↓                      │
-│       │   ┌─────────────┐              │
-│       └───│   Control   │              │
-│           │    Unit     │              │
-│           └─────────────┘              │
-│              │        │                 │
-│      ┌───────┘        └────────┐       │
-│      ↓                         ↓       │
-│  ┌─────────┐             ┌─────────┐  │
-│  │Register │────────────→│   ALU   │  │
-│  │  File   │             └─────────┘  │
-│  └─────────┘                  │        │
-│      ↑                        │        │
-│      └────────────────────────┘        │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                    ENHANCED 8-BIT CPU                   │
+│                                                          │
+│  ┌──────────────┐                                        │
+│  │   Program    │                                        │
+│  │   Counter    │────┐                                   │
+│  │   (8-bit)    │    │                                   │
+│  └──────────────┘    │                                   │
+│         ↑            ↓                                   │
+│         │    ┌──────────────────┐                       │
+│         │    │  Instruction     │                       │
+│         │    │  Memory (ROM)    │                       │
+│         │    │  256 × 16-bit    │                       │
+│         │    └──────────────────┘                       │
+│         │            │                                   │
+│         │            ↓                                   │
+│         │    ┌──────────────────┐                       │
+│         └───→│   Control Unit   │                       │
+│              │  (State Machine) │                       │
+│              └──────────────────┘                       │
+│                 │      │      │      │                  │
+│      ┌──────────┘      │      │      └──────┐          │
+│      ↓                 │      │             ↓          │
+│  ┌──────────────┐      │      │     ┌──────────────┐  │
+│  │   Register   │──────┼──────┼────→│     ALU      │  │
+│  │    File      │      │      │     │  (14 ops +   │  │
+│  │  8 × 8-bit   │      │      │     │  status flags│  │
+│  └──────────────┘      │      │     └──────────────┘  │
+│      ↑   │             │      │             │          │
+│      │   └─────────────┘      │             │          │
+│      │                        │             ↓          │
+│      │                  ┌──────────────┐              │
+│      └──────────────────│  Data Memory │              │
+│                         │  (RAM)       │              │
+│                         │  256 × 8-bit │              │
+│                         └──────────────┘              │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -287,38 +309,49 @@ The control unit keeps a small latched copy of the ALU’s zero flag so that `JZ
 
 ## The Demo Program
 
-`rtl/instruction_memory.v` comes preloaded with a small program that hits arithmetic, a couple of branches, and HALT. In table form:
+`rtl/instruction_memory.v` comes preloaded with an enhanced program that exercises arithmetic, memory operations, branches, and jumps. In table form:
 
 ```text
-Address | Binary       | Assembly        | Effect
---------|--------------|-----------------|-------------------------------
-   0    | 0000_0000    | LOAD R0, 0      | R0 = 0
-   1    | 0000_0001    | LOAD R1, 1      | R1 = 1
-   2    | 0010_0001    | ADD  R0, R1     | R0 = 1, last_zero = 0
-   3    | 1000_0111    | JZ   7          | not taken (last_zero = 0)
-   4    | 0011_0001    | SUB  R0, R1     | R0 = 0, last_zero = 1
-   5    | 1001_0111    | JNZ  7          | not taken (last_zero = 1)
-   6    | 1000_1000    | JZ   8          | taken   (last_zero = 1)
-   7    | 0000_0011    | LOAD R0, 3      | skipped
-   8    | 0111_0000    | HALT            | stop
+Address | Hex     | Assembly        | Effect
+--------|---------|-----------------|-------------------------------
+   0    | 0205    | LOADI R1, 5     | R1 = 5
+   1    | 040a    | LOADI R2, 10    | R2 = 10
+   2    | 1280    | ADD R1, R2      | R2 = R1 + R2 = 15
+   3    | 2440    | SUB R2, R1      | R1 = R2 - R1 = 10
+   4    | 0632    | LOADI R3, 50    | R3 = 50 (memory address)
+   5    | 6232    | STORE R1, [50]  | Mem[50] = R1 = 10
+   6    | 7832    | LOAD R4, [50]   | R4 = Mem[50] = 10
+   7    | 3280    | AND R1, R2      | R2 = R1 & R2 = 10
+   8    | a00a    | JUMP 10         | PC = 10
+   9    | 0fff    | LOADI R5, 63    | skipped (max immediate)
+  10    | 0a2a    | LOADI R5, 42    | R5 = 42
+  11    | f000    | HALT            | stop
 ```
 
-If you run `make simulate` right after cloning, the printout in the terminal is this program executing. The self‑checking testbench will also assert that the final register state is `R0=0, R1=1, R2=0, R3=0`.
+Expected final register state: `R0=0, R1=10, R2=10, R3=50, R4=10, R5=42, R6=0, R7=0`
+
+This program demonstrates:
+- Immediate loading into registers
+- Arithmetic operations (ADD, SUB)
+- Bitwise operations (AND)
+- Memory operations (STORE, LOAD) using Harvard architecture
+- Unconditional jumps
+- Register addressing across 8 registers
 
 ---
 
 ## Editing the Program
 
-To change the program, open `rtl/instruction_memory.v` and edit the `initial` block. For example, a very small variant that just does a single add and halts:
+To change the program, open `rtl/instruction_memory.v` and edit the `initial` block. Instructions use the 16-bit format: `{opcode[3:0], reg1[2:0], reg2[2:0], immediate[5:0]}`.
+
+Example: A simple program that loads two values, adds them, and stores the result:
 
 ```verilog
-initial begin
-    memory[0]  = 8'b0000_1010;  // LOAD R0, 10
-    memory[1]  = 8'b0000_0101;  // LOAD R1, 5
-    memory[2]  = 8'b0010_0001;  // ADD R0, R1 (10 + 5 = 15)
-    memory[3]  = 8'b0111_0000;  // HALT
-    // rest left at 0
-end
+memory[0]  = {4'b0000, 3'b001, 3'b000, 6'b000101};  // LOADI R1, 5
+memory[1]  = {4'b0000, 3'b010, 3'b000, 6'b001010};  // LOADI R2, 10
+memory[2]  = {4'b0001, 3'b001, 3'b010, 6'b000000};  // ADD R1, R2 -> R2 = 15
+memory[3]  = {4'b0110, 3'b010, 3'b000, 6'b110010};  // STORE R2, [50]
+memory[4]  = {4'b1111, 3'b000, 3'b000, 6'b000000};  // HALT
 ```
 
 Then re‑run:
@@ -329,6 +362,12 @@ make web-wave
 ```
 
 You should see the new values reflected both in the terminal trace and in your waveforms.
+
+**Important Notes:**
+- Immediate values are limited to 6 bits (0-63)
+- Memory addresses for STORE/LOAD are also limited to 6-bit immediates
+- Register indices use 3 bits (0-7 for R0-R7)
+- For arithmetic/logic operations, `reg2` is the destination register
 
 ---
 

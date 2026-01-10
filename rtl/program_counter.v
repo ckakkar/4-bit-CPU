@@ -1,19 +1,19 @@
 // program_counter.v - program counter
-// Tracks which instruction the core is currently fetching
+// Tracks which instruction the core is currently fetching (expanded to 8-bit)
 
 module program_counter (
     input clk,                    // Clock signal
     input rst,                    // Reset signal (active high)
     input enable,                 // Enable counting (1 = increment, 0 = hold)
     input load,                   // Load new address (for jumps)
-    input [3:0] load_addr,        // Address to load (for jump instructions)
-    output reg [3:0] pc           // Current program counter value (4 bits = 16 addresses)
+    input [7:0] load_addr,        // Address to load (for jump instructions, 8 bits = 256 addresses)
+    output reg [7:0] pc           // Current program counter value (8 bits = 256 addresses)
 );
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             // Reset PC to 0 (start of program)
-            pc <= 4'b0000;
+            pc <= 8'b00000000;
         end else if (load) begin
             // Load new address (for jump instructions)
             pc <= load_addr;

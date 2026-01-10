@@ -9,6 +9,7 @@ RTL_FILES = $(RTL_DIR)/alu.v \
             $(RTL_DIR)/register_file.v \
             $(RTL_DIR)/program_counter.v \
             $(RTL_DIR)/instruction_memory.v \
+            $(RTL_DIR)/data_memory.v \
             $(RTL_DIR)/control_unit.v \
             $(RTL_DIR)/cpu.v
 
