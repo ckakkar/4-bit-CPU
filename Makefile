@@ -42,6 +42,22 @@ RTL_FILES_ENHANCED = $(RTL_DIR)/alu.v \
                      $(RTL_DIR)/instruction_format_extended.v \
                      $(RTL_DIR)/cpu_enhanced.v
 
+# Files - Ultra Advanced CPU (multi-core, OOO, speculative, virtual memory, OS, real-time)
+RTL_FILES_ULTRA = $(RTL_DIR)/alu.v \
+                  $(RTL_DIR)/register_file.v \
+                  $(RTL_DIR)/program_counter.v \
+                  $(RTL_DIR)/instruction_memory.v \
+                  $(RTL_DIR)/data_memory.v \
+                  $(RTL_DIR)/multicore_interconnect.v \
+                  $(RTL_DIR)/cpu_multicore.v \
+                  $(RTL_DIR)/out_of_order_execution.v \
+                  $(RTL_DIR)/speculative_execution.v \
+                  $(RTL_DIR)/mmu.v \
+                  $(RTL_DIR)/os_support.v \
+                  $(RTL_DIR)/realtime_scheduler.v \
+                  $(RTL_DIR)/instruction_set_extension.v \
+                  $(RTL_DIR)/cpu_advanced_unified.v
+
 TB_FILE = $(SIM_DIR)/cpu_tb.v
 
 # Output files
@@ -51,6 +67,8 @@ VVP_FILE_PIPELINED = cpu_pipelined_sim.vvp
 VCD_FILE_PIPELINED = cpu_pipelined_sim.vcd
 VVP_FILE_ENHANCED = cpu_enhanced_sim.vvp
 VCD_FILE_ENHANCED = cpu_enhanced_sim.vcd
+VVP_FILE_ULTRA = cpu_ultra_sim.vvp
+VCD_FILE_ULTRA = cpu_ultra_sim.vcd
 
 # Default target
 all: simulate
@@ -144,11 +162,42 @@ simulate-enhanced: compile-enhanced
 	@echo "Simulation complete! VCD file generated: $(VCD_FILE_ENHANCED)"
 	@echo ""
 
+# Compile ultra advanced CPU
+compile-ultra:
+	@echo "==================================================="
+	@echo "Compiling Ultra Advanced CPU with iverilog..."
+	@echo "==================================================="
+	iverilog -g2012 -o $(VVP_FILE_ULTRA) $(RTL_FILES_ULTRA) $(SIM_DIR)/cpu_tb.v
+	@echo "Compilation successful!"
+	@echo ""
+
+# Simulate ultra advanced CPU
+simulate-ultra: compile-ultra
+	@echo "==================================================="
+	@echo "Running ultra advanced CPU simulation..."
+	@echo "==================================================="
+	vvp $(VVP_FILE_ULTRA)
+	@echo ""
+	@echo "Simulation complete! VCD file generated: $(VCD_FILE_ULTRA)"
+	@echo ""
+
+# Compile with advanced compiler
+compile-advanced:
+	@echo "==================================================="
+	@echo "Compiling with advanced compiler..."
+	@echo "==================================================="
+	@if [ -z "$(ASM_FILE)" ]; then \
+		echo "Usage: make compile-advanced ASM_FILE=file.asm"; \
+		exit 1; \
+	fi
+	@python3 tools/advanced_compiler.py $(ASM_FILE) $(ASM_FILE).optimized
+	@echo "Advanced compilation complete! Optimized file: $(ASM_FILE).optimized"
+
 # Clean all generated files
 clean-all:
 	@echo "Cleaning all generated files..."
 	rm -f $(VVP_FILE) $(VCD_FILE) $(VVP_FILE_PIPELINED) $(VCD_FILE_PIPELINED) \
-	      $(VVP_FILE_ENHANCED) $(VCD_FILE_ENHANCED)
+	      $(VVP_FILE_ENHANCED) $(VCD_FILE_ENHANCED) $(VVP_FILE_ULTRA) $(VCD_FILE_ULTRA)
 	@echo "Clean complete!"
 
 # Assemble assembly file
@@ -199,8 +248,13 @@ help:
 	@echo "make compile-enhanced   - Compile enhanced CPU"
 	@echo "make simulate-enhanced  - Run enhanced CPU simulation"
 	@echo ""
+	@echo "Ultra Advanced CPU (multi-core, OOO, speculative, virtual memory, OS, real-time):"
+	@echo "make compile-ultra      - Compile ultra advanced CPU"
+	@echo "make simulate-ultra     - Run ultra advanced CPU simulation"
+	@echo ""
 	@echo "Development Tools:"
 	@echo "make assemble ASM_FILE=file.asm  - Assemble assembly to Verilog"
+	@echo "make compile-advanced ASM_FILE=file.asm - Compile with optimizations"
 	@echo "make test                        - Run automated test suite"
 	@echo "make analyze [VCD_FILE=file.vcd] - Analyze performance from VCD"
 	@echo ""
@@ -213,4 +267,4 @@ help:
 	@echo "make clean-all - Remove all generated files"
 	@echo "make help      - Show this help message"
 
-.PHONY: all compile simulate wave web-wave gtkwave clean compile-pipelined simulate-pipelined compile-enhanced simulate-enhanced clean-all help assemble test analyze
+.PHONY: all compile simulate wave web-wave gtkwave clean compile-pipelined simulate-pipelined compile-enhanced simulate-enhanced compile-ultra simulate-ultra compile-advanced clean-all help assemble test analyze
