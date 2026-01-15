@@ -151,6 +151,38 @@ clean-all:
 	      $(VVP_FILE_ENHANCED) $(VCD_FILE_ENHANCED)
 	@echo "Clean complete!"
 
+# Assemble assembly file
+assemble:
+	@echo "==================================================="
+	@echo "Assembling assembly file..."
+	@echo "==================================================="
+	@if [ -z "$(ASM_FILE)" ]; then \
+		echo "Usage: make assemble ASM_FILE=examples/fibonacci.asm"; \
+		exit 1; \
+	fi
+	@python3 tools/assembler.py $(ASM_FILE) rtl/instruction_memory_generated.v
+	@echo "Assembly complete! Generated: rtl/instruction_memory_generated.v"
+
+# Run test suite
+test:
+	@echo "==================================================="
+	@echo "Running CPU test suite..."
+	@echo "==================================================="
+	@python3 tools/test_suite.py
+	@echo "Test suite complete!"
+
+# Analyze performance
+analyze:
+	@echo "==================================================="
+	@echo "Analyzing CPU performance..."
+	@echo "==================================================="
+	@if [ -z "$(VCD_FILE)" ]; then \
+		python3 tools/performance_analyzer.py cpu_sim.vcd; \
+	else \
+		python3 tools/performance_analyzer.py $(VCD_FILE); \
+	fi
+	@echo "Performance analysis complete! See performance_report.txt"
+
 # Help
 help:
 	@echo "Simple CPU Project - Makefile Commands"
@@ -167,6 +199,11 @@ help:
 	@echo "make compile-enhanced   - Compile enhanced CPU"
 	@echo "make simulate-enhanced  - Run enhanced CPU simulation"
 	@echo ""
+	@echo "Development Tools:"
+	@echo "make assemble ASM_FILE=file.asm  - Assemble assembly to Verilog"
+	@echo "make test                        - Run automated test suite"
+	@echo "make analyze [VCD_FILE=file.vcd] - Analyze performance from VCD"
+	@echo ""
 	@echo "Waveform Viewers (choose one):"
 	@echo "make wave      - View in terminal (text-based, works everywhere)"
 	@echo "make web-wave  - View in browser (recommended for Mac M2)"
@@ -176,4 +213,4 @@ help:
 	@echo "make clean-all - Remove all generated files"
 	@echo "make help      - Show this help message"
 
-.PHONY: all compile simulate wave web-wave gtkwave clean compile-pipelined simulate-pipelined compile-enhanced simulate-enhanced clean-all help
+.PHONY: all compile simulate wave web-wave gtkwave clean compile-pipelined simulate-pipelined compile-enhanced simulate-enhanced clean-all help assemble test analyze
