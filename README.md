@@ -418,7 +418,19 @@ simple-cpu-project/
 ├── examples/                   # Example assembly programs
 │   ├── fibonacci.asm           # Fibonacci sequence calculator
 │   ├── bubble_sort.asm        # Bubble sort algorithm
-│   └── interrupt_example.asm  # Interrupt-driven program example
+│   ├── interrupt_example.asm  # Interrupt-driven program example
+│   ├── factorial.asm          # Factorial calculator (n!)
+│   ├── prime_sieve.asm        # Sieve of Eratosthenes (prime finder)
+│   ├── palindrome_checker.asm # Palindrome number checker
+│   ├── calculator.asm         # Simple arithmetic calculator
+│   ├── pattern_generator.asm  # Number pattern generator (powers, triangular, squares)
+│   ├── tribonacci.asm         # Tribonacci sequence generator
+│   ├── selection_sort.asm     # Selection sort algorithm
+│   ├── xor_cipher.asm         # XOR encryption/decryption
+│   ├── collatz_conjecture.asm # Collatz conjecture sequence generator
+│   ├── multicore_example.asm  # Multi-core programming example
+│   ├── realtime_example.asm   # Real-time task example
+│   └── virtual_memory_example.asm # Virtual memory usage example
 │
 ├── .github/                    # GitHub Actions workflows
 │   └── workflows/
@@ -1410,6 +1422,97 @@ When viewing waveforms, these signals are most informative:
 
 ## Example Programs
 
+### Example Programs Library
+
+The project includes **13 example programs** demonstrating various algorithms, CPU features, and programming techniques:
+
+#### Mathematical Algorithms
+
+1. **Fibonacci Sequence** (`examples/fibonacci.asm`)
+   - Calculates first 10 Fibonacci numbers
+   - Demonstrates loops, memory operations, and arithmetic
+   - Shows iterative algorithm implementation
+
+2. **Factorial Calculator** (`examples/factorial.asm`)
+   - Calculates n! (factorial) for n = 0 to 7
+   - Demonstrates multiplication and iterative calculations
+   - Shows how to handle mathematical sequences
+
+3. **Prime Number Sieve** (`examples/prime_sieve.asm`)
+   - Implements Sieve of Eratosthenes algorithm
+   - Finds all primes from 2 to 63
+   - Demonstrates array manipulation and nested loops
+
+4. **Tribonacci Sequence** (`examples/tribonacci.asm`)
+   - Generates Tribonacci numbers (sum of previous 3)
+   - Similar to Fibonacci but with 3 initial values
+   - Demonstrates sequence generation
+
+5. **Collatz Conjecture** (`examples/collatz_conjecture.asm`)
+   - Generates Collatz sequence for a given number
+   - Demonstrates conditional logic and loops
+   - Shows mathematical sequence generation
+
+#### Sorting Algorithms
+
+6. **Bubble Sort** (`examples/bubble_sort.asm`)
+   - Sorts array using bubble sort algorithm
+   - Demonstrates nested loops and comparisons
+   - Classic sorting algorithm implementation
+
+7. **Selection Sort** (`examples/selection_sort.asm`)
+   - Sorts array using selection sort algorithm
+   - Finds minimum and swaps with current position
+   - Alternative sorting approach
+
+#### Pattern Generators
+
+8. **Pattern Generator** (`examples/pattern_generator.asm`)
+   - Generates three number patterns:
+     - Powers of 2 (2^n)
+     - Triangular numbers (n*(n+1)/2)
+     - Square numbers (n²)
+   - Demonstrates different mathematical sequences
+
+#### Utility Programs
+
+9. **Palindrome Checker** (`examples/palindrome_checker.asm`)
+   - Checks if a number is a palindrome
+   - Reverses number and compares
+   - Demonstrates number manipulation
+
+10. **Simple Calculator** (`examples/calculator.asm`)
+    - Performs basic arithmetic operations
+    - Examples: (10+5)*3-2, 20/4, complex expressions
+    - Demonstrates expression evaluation
+
+11. **XOR Cipher** (`examples/xor_cipher.asm`)
+    - Simple encryption/decryption using XOR
+    - Encrypts and decrypts a message
+    - Demonstrates bitwise operations and cryptography basics
+
+#### System Programming
+
+12. **Interrupt Example** (`examples/interrupt_example.asm`)
+    - Demonstrates interrupt-driven programming
+    - Timer interrupt service routine
+    - Shows stack usage and ISR handling
+
+13. **Multi-Core Example** (`examples/multicore_example.asm`)
+    - Multi-core programming example
+    - Shared memory access
+    - Inter-core communication
+
+14. **Real-Time Example** (`examples/realtime_example.asm`)
+    - Real-time task scheduling example
+    - Priority-based tasks
+    - Deadline management
+
+15. **Virtual Memory Example** (`examples/virtual_memory_example.asm`)
+    - Virtual address space usage
+    - MMU translation example
+    - Memory protection demonstration
+
 ### Default Demo Program
 
 The instruction memory comes pre-loaded with a comprehensive demo program that exercises all instruction types:
@@ -1487,6 +1590,206 @@ Demonstrates conditional branches:
 ```
 
 **Expected Result**: R2 = 42 (instruction at address 2 is skipped)
+
+### Fun Example Programs
+
+The project includes many fun and educational example programs:
+
+#### 1. Factorial Calculator (`examples/factorial.asm`)
+
+Calculates n! (factorial) for n = 0 to 7 and stores results in memory.
+
+**Algorithm**: Iterative multiplication
+- 0! = 1
+- n! = n × (n-1)!
+
+**Features Demonstrated**:
+- Multiplication operations
+- Iterative calculations
+- Memory storage of results
+
+**Usage**:
+```bash
+make assemble ASM_FILE=examples/factorial.asm
+```
+
+**Results**: Stores factorial values at addresses 0x20-0x27
+
+---
+
+#### 2. Prime Number Sieve (`examples/prime_sieve.asm`)
+
+Implements the Sieve of Eratosthenes algorithm to find all prime numbers from 2 to 63.
+
+**Algorithm**: 
+1. Initialize all numbers as prime
+2. Mark multiples of each prime as non-prime
+3. Remaining unmarked numbers are primes
+
+**Features Demonstrated**:
+- Array manipulation
+- Nested loops
+- Mathematical algorithms
+- Memory marking
+
+**Usage**:
+```bash
+make assemble ASM_FILE=examples/prime_sieve.asm
+```
+
+**Results**: Memory locations with value 1 indicate prime numbers
+
+---
+
+#### 3. Palindrome Checker (`examples/palindrome_checker.asm`)
+
+Checks if a number is a palindrome (reads same forwards and backwards).
+
+**Algorithm**:
+1. Reverse the number
+2. Compare original with reversed
+3. If equal, it's a palindrome
+
+**Features Demonstrated**:
+- Number reversal
+- Division and modulo operations
+- Comparison logic
+
+**Example**: 121 is a palindrome, 123 is not
+
+---
+
+#### 4. Simple Calculator (`examples/calculator.asm`)
+
+Performs basic arithmetic operations including addition, subtraction, multiplication, and division.
+
+**Examples**:
+- (10 + 5) × 3 - 2 = 43
+- 20 ÷ 4 = 5 (quotient) with remainder 0
+- (8 × 7) + (12 ÷ 3) = 60
+
+**Features Demonstrated**:
+- Expression evaluation
+- Multiple operations
+- Intermediate result storage
+
+---
+
+#### 5. Pattern Generator (`examples/pattern_generator.asm`)
+
+Generates three interesting number patterns:
+
+**Pattern 1: Powers of 2**
+- 2⁰, 2¹, 2², 2³, ... = 1, 2, 4, 8, 16, 32, 64, 128
+
+**Pattern 2: Triangular Numbers**
+- T(n) = n × (n+1) / 2 = 1, 3, 6, 10, 15, 21, 28, 36, 45, 55
+
+**Pattern 3: Square Numbers**
+- n² = 1, 4, 9, 16, 25, 36, 49, 64, 81, 100
+
+**Features Demonstrated**:
+- Multiple pattern generation
+- Shift operations (for powers of 2)
+- Multiplication (for squares)
+- Iterative calculations
+
+---
+
+#### 6. Tribonacci Sequence (`examples/tribonacci.asm`)
+
+Generates Tribonacci numbers where each number is the sum of the previous three.
+
+**Sequence**: 0, 0, 1, 1, 2, 4, 7, 13, 24, 44, 81, 149, 274, 504, 927
+
+**Formula**: T(n) = T(n-1) + T(n-2) + T(n-3)
+
+**Features Demonstrated**:
+- Sequence generation
+- Three-variable state management
+- Similar to Fibonacci but with three initial values
+
+---
+
+#### 7. Selection Sort (`examples/selection_sort.asm`)
+
+Sorts an array using the selection sort algorithm.
+
+**Algorithm**:
+1. Find minimum element in unsorted portion
+2. Swap with current position
+3. Repeat for remaining elements
+
+**Features Demonstrated**:
+- Sorting algorithm implementation
+- Nested loops
+- Minimum finding
+- Array swapping
+
+**Example**: Sorts [34, 12, 56, 7, 23, 45, 19, 3] → [3, 7, 12, 19, 23, 34, 45, 56]
+
+---
+
+#### 8. XOR Cipher (`examples/xor_cipher.asm`)
+
+Simple encryption/decryption using XOR operation.
+
+**Algorithm**:
+- Encryption: ciphertext = plaintext XOR key
+- Decryption: plaintext = ciphertext XOR key (same operation!)
+
+**Features Demonstrated**:
+- Bitwise XOR operations
+- Encryption/decryption
+- Array processing
+- Cryptography basics
+
+**Example**: Encrypts "HELLO" with key 0xAA, then decrypts back to "HELLO"
+
+---
+
+#### 9. Collatz Conjecture (`examples/collatz_conjecture.asm`)
+
+Generates Collatz sequence for a given starting number.
+
+**Algorithm**:
+- If n is even: n = n / 2
+- If n is odd: n = 3×n + 1
+- Repeat until n = 1
+
+**Features Demonstrated**:
+- Conditional logic (even/odd check)
+- Mathematical sequence generation
+- Loop with condition
+
+**Example**: Starting with 7 → 7, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1
+
+**Note**: The Collatz Conjecture states that all sequences eventually reach 1, but this has not been mathematically proven!
+
+---
+
+### Running Example Programs
+
+To run any example program:
+
+1. **Assemble the program**:
+   ```bash
+   make assemble ASM_FILE=examples/factorial.asm
+   ```
+
+2. **Update instruction memory**: Copy the generated Verilog code into `rtl/instruction_memory.v`
+
+3. **Run simulation**:
+   ```bash
+   make simulate
+   ```
+
+4. **View results**: Check memory contents or register values in the simulation output
+
+5. **Analyze performance**:
+   ```bash
+   make analyze
+   ```
 
 ---
 
@@ -2525,8 +2828,8 @@ make analyze
 **Code Metrics**:
 - **RTL Modules**: 30+ Verilog modules
 - **Tools**: 4 Python tools
-- **Example Programs**: 6 assembly examples
-- **Documentation Files**: 11 comprehensive guides
+- **Example Programs**: 15 assembly examples
+- **Documentation Files**: 1 comprehensive guide (all-in-one README)
 - **Total Lines of Code**: ~8000+ lines
 
 **Feature Count**:
@@ -2620,7 +2923,7 @@ make analyze
 **Code Statistics**:
 - RTL Modules: 20+ → 30+ (was 7)
 - Tools: 3 → 4 (was 2)
-- Example Programs: 3 → 6 (was 0)
+- Example Programs: 3 → 15 (was 0)
 - Documentation Files: 6 → 11 (was 1)
 - Total Lines of Code: ~5000+ → ~8000+ (was ~1500)
 
@@ -3320,7 +3623,7 @@ power_savings;  // 0-100 percentage
 **Branch Predictors**: 2 implementations
 **CPU Variants**: 4 implementations
 **Development Tools**: 4 Python tools
-**Example Programs**: 6 assembly examples
+**Example Programs**: 15 assembly examples
 
 ### Performance Metrics
 
