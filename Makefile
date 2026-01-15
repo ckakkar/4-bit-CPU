@@ -58,6 +58,68 @@ RTL_FILES_ULTRA = $(RTL_DIR)/alu.v \
                   $(RTL_DIR)/instruction_set_extension.v \
                   $(RTL_DIR)/cpu_advanced_unified.v
 
+# Files - CPU with Multi-Level Cache Hierarchy
+RTL_FILES_CACHED = $(RTL_DIR)/alu.v \
+                   $(RTL_DIR)/register_file.v \
+                   $(RTL_DIR)/program_counter.v \
+                   $(RTL_DIR)/instruction_memory.v \
+                   $(RTL_DIR)/data_memory.v \
+                   $(RTL_DIR)/control_unit.v \
+                   $(RTL_DIR)/l1_exclusive_cache.v \
+                   $(RTL_DIR)/l2_inclusive_cache.v \
+                   $(RTL_DIR)/l3_shared_cache.v \
+                   $(RTL_DIR)/cache_hierarchy.v \
+                   $(RTL_DIR)/cpu_with_cache.v
+
+# Files - Multi-Core CPU with Cache Hierarchy
+RTL_FILES_MULTICORE_CACHED = $(RTL_DIR)/alu.v \
+                             $(RTL_DIR)/register_file.v \
+                             $(RTL_DIR)/program_counter.v \
+                             $(RTL_DIR)/instruction_memory.v \
+                             $(RTL_DIR)/data_memory.v \
+                             $(RTL_DIR)/control_unit.v \
+                             $(RTL_DIR)/l1_exclusive_cache.v \
+                             $(RTL_DIR)/l2_inclusive_cache.v \
+                             $(RTL_DIR)/l3_shared_cache.v \
+                             $(RTL_DIR)/cache_hierarchy.v \
+                             $(RTL_DIR)/cpu_with_cache.v \
+                             $(RTL_DIR)/cpu_multicore_cached.v
+
+# Files - Systolic Array System
+RTL_FILES_SYSTOLIC = $(RTL_DIR)/systolic_pe.v \
+                     $(RTL_DIR)/systolic_array.v \
+                     $(RTL_DIR)/systolic_controller.v \
+                     $(RTL_DIR)/data_memory.v \
+                     $(RTL_DIR)/systolic_system.v
+
+# Files - Quantum-Classical Hybrid System
+RTL_FILES_QUANTUM = $(RTL_DIR)/quantum_coprocessor.v \
+                    $(RTL_DIR)/quantum_controller.v \
+                    $(RTL_DIR)/quantum_error_correction.v \
+                    $(RTL_DIR)/quantum_factoring.v \
+                    $(RTL_DIR)/quantum_search.v \
+                    $(RTL_DIR)/quantum_optimization.v \
+                    $(RTL_DIR)/data_memory.v \
+                    $(RTL_DIR)/quantum_system.v
+
+# Files - Custom Instruction Set Extensions
+RTL_FILES_CUSTOM_INST = $(RTL_DIR)/custom_instruction_decoder.v \
+                        $(RTL_DIR)/crypto_accelerator.v \
+                        $(RTL_DIR)/dsp_accelerator.v \
+                        $(RTL_DIR)/ai_accelerator.v \
+                        $(RTL_DIR)/instruction_fusion.v \
+                        $(RTL_DIR)/tightly_coupled_accelerator.v \
+                        $(RTL_DIR)/custom_instruction_unit.v
+
+# Files - Neuromorphic Computing System
+RTL_FILES_NEUROMORPHIC = $(RTL_DIR)/spiking_neuron.v \
+                         $(RTL_DIR)/synaptic_memory.v \
+                         $(RTL_DIR)/stdp_learning.v \
+                         $(RTL_DIR)/event_driven_processor.v \
+                         $(RTL_DIR)/neuromorphic_layer.v \
+                         $(RTL_DIR)/data_memory.v \
+                         $(RTL_DIR)/neuromorphic_system.v
+
 TB_FILE = $(SIM_DIR)/cpu_tb.v
 
 # Output files
@@ -69,6 +131,18 @@ VVP_FILE_ENHANCED = cpu_enhanced_sim.vvp
 VCD_FILE_ENHANCED = cpu_enhanced_sim.vcd
 VVP_FILE_ULTRA = cpu_ultra_sim.vvp
 VCD_FILE_ULTRA = cpu_ultra_sim.vcd
+VVP_FILE_CACHED = cpu_cached_sim.vvp
+VCD_FILE_CACHED = cpu_cached_sim.vcd
+VVP_FILE_MULTICORE_CACHED = cpu_multicore_cached_sim.vvp
+VCD_FILE_MULTICORE_CACHED = cpu_multicore_cached_sim.vcd
+VVP_FILE_SYSTOLIC = systolic_sim.vvp
+VCD_FILE_SYSTOLIC = systolic_sim.vcd
+VVP_FILE_QUANTUM = quantum_sim.vvp
+VCD_FILE_QUANTUM = quantum_sim.vcd
+VVP_FILE_CUSTOM_INST = custom_inst_sim.vvp
+VCD_FILE_CUSTOM_INST = custom_inst_sim.vcd
+VVP_FILE_NEUROMORPHIC = neuromorphic_sim.vvp
+VCD_FILE_NEUROMORPHIC = neuromorphic_sim.vcd
 
 # Default target
 all: simulate
@@ -193,11 +267,128 @@ compile-advanced:
 	@python3 tools/advanced_compiler.py $(ASM_FILE) $(ASM_FILE).optimized
 	@echo "Advanced compilation complete! Optimized file: $(ASM_FILE).optimized"
 
+# Compile CPU with cache hierarchy
+compile-cached:
+	@echo "==================================================="
+	@echo "Compiling CPU with Multi-Level Cache Hierarchy..."
+	@echo "==================================================="
+	iverilog -g2012 -o $(VVP_FILE_CACHED) $(RTL_FILES_CACHED) $(SIM_DIR)/cpu_tb.v
+	@echo "Compilation successful!"
+	@echo ""
+
+# Simulate CPU with cache hierarchy
+simulate-cached: compile-cached
+	@echo "==================================================="
+	@echo "Running CPU with cache hierarchy simulation..."
+	@echo "==================================================="
+	vvp $(VVP_FILE_CACHED)
+	@echo ""
+	@echo "Simulation complete! VCD file generated: $(VCD_FILE_CACHED)"
+	@echo ""
+
+# Compile multi-core CPU with cache hierarchy
+compile-multicore-cached:
+	@echo "==================================================="
+	@echo "Compiling Multi-Core CPU with Cache Hierarchy..."
+	@echo "==================================================="
+	iverilog -g2012 -o $(VVP_FILE_MULTICORE_CACHED) $(RTL_FILES_MULTICORE_CACHED) $(SIM_DIR)/cpu_tb.v
+	@echo "Compilation successful!"
+	@echo ""
+
+# Simulate multi-core CPU with cache hierarchy
+simulate-multicore-cached: compile-multicore-cached
+	@echo "==================================================="
+	@echo "Running multi-core CPU with cache simulation..."
+	@echo "==================================================="
+	vvp $(VVP_FILE_MULTICORE_CACHED)
+	@echo ""
+	@echo "Simulation complete! VCD file generated: $(VCD_FILE_MULTICORE_CACHED)"
+	@echo ""
+
+# Compile systolic array system
+compile-systolic:
+	@echo "==================================================="
+	@echo "Compiling Systolic Array System..."
+	@echo "==================================================="
+	iverilog -g2012 -o $(VVP_FILE_SYSTOLIC) $(RTL_FILES_SYSTOLIC) $(SIM_DIR)/cpu_tb.v
+	@echo "Compilation successful!"
+	@echo ""
+
+# Simulate systolic array system
+simulate-systolic: compile-systolic
+	@echo "==================================================="
+	@echo "Running systolic array simulation..."
+	@echo "==================================================="
+	vvp $(VVP_FILE_SYSTOLIC)
+	@echo ""
+	@echo "Simulation complete! VCD file generated: $(VCD_FILE_SYSTOLIC)"
+	@echo ""
+
+# Compile quantum system
+compile-quantum:
+	@echo "==================================================="
+	@echo "Compiling Quantum-Classical Hybrid System..."
+	@echo "==================================================="
+	iverilog -g2012 -o $(VVP_FILE_QUANTUM) $(RTL_FILES_QUANTUM) $(SIM_DIR)/cpu_tb.v
+	@echo "Compilation successful!"
+	@echo ""
+
+# Simulate quantum system
+simulate-quantum: compile-quantum
+	@echo "==================================================="
+	@echo "Running quantum system simulation..."
+	@echo "==================================================="
+	vvp $(VVP_FILE_QUANTUM)
+	@echo ""
+	@echo "Simulation complete! VCD file generated: $(VCD_FILE_QUANTUM)"
+	@echo ""
+
+# Compile custom instruction extensions
+compile-custom-inst:
+	@echo "==================================================="
+	@echo "Compiling Custom Instruction Set Extensions..."
+	@echo "==================================================="
+	iverilog -g2012 -o $(VVP_FILE_CUSTOM_INST) $(RTL_FILES_CUSTOM_INST) $(SIM_DIR)/cpu_tb.v
+	@echo "Compilation successful!"
+	@echo ""
+
+# Simulate custom instruction extensions
+simulate-custom-inst: compile-custom-inst
+	@echo "==================================================="
+	@echo "Running custom instruction extensions simulation..."
+	@echo "==================================================="
+	vvp $(VVP_FILE_CUSTOM_INST)
+	@echo ""
+	@echo "Simulation complete! VCD file generated: $(VCD_FILE_CUSTOM_INST)"
+	@echo ""
+
+# Compile neuromorphic system
+compile-neuromorphic:
+	@echo "==================================================="
+	@echo "Compiling Neuromorphic Computing System..."
+	@echo "==================================================="
+	iverilog -g2012 -o $(VVP_FILE_NEUROMORPHIC) $(RTL_FILES_NEUROMORPHIC) $(SIM_DIR)/cpu_tb.v
+	@echo "Compilation successful!"
+	@echo ""
+
+# Simulate neuromorphic system
+simulate-neuromorphic: compile-neuromorphic
+	@echo "==================================================="
+	@echo "Running neuromorphic system simulation..."
+	@echo "==================================================="
+	vvp $(VVP_FILE_NEUROMORPHIC)
+	@echo ""
+	@echo "Simulation complete! VCD file generated: $(VCD_FILE_NEUROMORPHIC)"
+	@echo ""
+
 # Clean all generated files
 clean-all:
 	@echo "Cleaning all generated files..."
 	rm -f $(VVP_FILE) $(VCD_FILE) $(VVP_FILE_PIPELINED) $(VCD_FILE_PIPELINED) \
-	      $(VVP_FILE_ENHANCED) $(VCD_FILE_ENHANCED) $(VVP_FILE_ULTRA) $(VCD_FILE_ULTRA)
+	      $(VVP_FILE_ENHANCED) $(VCD_FILE_ENHANCED) $(VVP_FILE_ULTRA) $(VCD_FILE_ULTRA) \
+	      $(VVP_FILE_CACHED) $(VCD_FILE_CACHED) $(VVP_FILE_MULTICORE_CACHED) $(VCD_FILE_MULTICORE_CACHED) \
+	      $(VVP_FILE_SYSTOLIC) $(VCD_FILE_SYSTOLIC) $(VVP_FILE_QUANTUM) $(VCD_FILE_QUANTUM) \
+	      $(VVP_FILE_CUSTOM_INST) $(VCD_FILE_CUSTOM_INST) $(VVP_FILE_NEUROMORPHIC) $(VCD_FILE_NEUROMORPHIC)
 	@echo "Clean complete!"
 
 # Assemble assembly file
@@ -236,35 +427,46 @@ analyze:
 help:
 	@echo "Simple CPU Project - Makefile Commands"
 	@echo "======================================="
-	@echo "Simple CPU (non-pipelined):"
-	@echo "make compile   - Compile Verilog files"
-	@echo "make simulate  - Compile and run simulation"
 	@echo ""
-	@echo "Pipelined CPU (advanced features):"
-	@echo "make compile-pipelined  - Compile pipelined CPU"
-	@echo "make simulate-pipelined - Run pipelined CPU simulation"
+	@echo "Basic CPU Implementations:"
+	@echo "  make compile          - Compile simple CPU (non-pipelined)"
+	@echo "  make simulate         - Compile and run simple CPU simulation"
+	@echo "  make compile-pipelined - Compile pipelined CPU"
+	@echo "  make simulate-pipelined - Run pipelined CPU simulation"
+	@echo "  make compile-enhanced - Compile enhanced CPU (stack, multiplier, I/O)"
+	@echo "  make simulate-enhanced - Run enhanced CPU simulation"
+	@echo "  make compile-ultra    - Compile ultra advanced CPU (multi-core, OOO, etc.)"
+	@echo "  make simulate-ultra   - Run ultra advanced CPU simulation"
 	@echo ""
-	@echo "Enhanced CPU (stack, multiplier, I/O, interrupts):"
-	@echo "make compile-enhanced   - Compile enhanced CPU"
-	@echo "make simulate-enhanced  - Run enhanced CPU simulation"
-	@echo ""
-	@echo "Ultra Advanced CPU (multi-core, OOO, speculative, virtual memory, OS, real-time):"
-	@echo "make compile-ultra      - Compile ultra advanced CPU"
-	@echo "make simulate-ultra     - Run ultra advanced CPU simulation"
+	@echo "Advanced Features:"
+	@echo "  make compile-cached   - Compile CPU with multi-level cache hierarchy"
+	@echo "  make simulate-cached  - Run CPU with cache hierarchy simulation"
+	@echo "  make compile-multicore-cached - Compile multi-core CPU with cache"
+	@echo "  make simulate-multicore-cached - Run multi-core cached CPU simulation"
+	@echo "  make compile-systolic - Compile systolic array system"
+	@echo "  make simulate-systolic - Run systolic array simulation"
+	@echo "  make compile-quantum   - Compile quantum-classical hybrid system"
+	@echo "  make simulate-quantum - Run quantum system simulation"
+	@echo "  make compile-custom-inst - Compile custom instruction extensions"
+	@echo "  make simulate-custom-inst - Run custom instruction simulation"
+	@echo "  make compile-neuromorphic - Compile neuromorphic computing system"
+	@echo "  make simulate-neuromorphic - Run neuromorphic system simulation"
 	@echo ""
 	@echo "Development Tools:"
-	@echo "make assemble ASM_FILE=file.asm  - Assemble assembly to Verilog"
-	@echo "make compile-advanced ASM_FILE=file.asm - Compile with optimizations"
-	@echo "make test                        - Run automated test suite"
-	@echo "make analyze [VCD_FILE=file.vcd] - Analyze performance from VCD"
+	@echo "  make assemble ASM_FILE=file.asm - Assemble assembly to Verilog"
+	@echo "  make compile-advanced ASM_FILE=file.asm - Compile with optimizations"
+	@echo "  make test              - Run automated test suite"
+	@echo "  make analyze [VCD_FILE=file.vcd] - Analyze performance from VCD"
 	@echo ""
 	@echo "Waveform Viewers (choose one):"
-	@echo "make wave      - View in terminal (text-based, works everywhere)"
-	@echo "make web-wave  - View in browser (recommended for Mac M2)"
-	@echo "make gtkwave   - Use GTKWave (if installed)"
+	@echo "  make wave             - View in terminal (text-based, works everywhere)"
+	@echo "  make web-wave         - View in browser (recommended for Mac M2)"
+	@echo "  make gtkwave          - Use GTKWave (if installed)"
 	@echo ""
-	@echo "make clean     - Remove simple CPU generated files"
-	@echo "make clean-all - Remove all generated files"
-	@echo "make help      - Show this help message"
+	@echo "Cleanup:"
+	@echo "  make clean            - Remove simple CPU generated files"
+	@echo "  make clean-all        - Remove all generated files"
+	@echo ""
+	@echo "  make help             - Show this help message"
 
-.PHONY: all compile simulate wave web-wave gtkwave clean compile-pipelined simulate-pipelined compile-enhanced simulate-enhanced compile-ultra simulate-ultra compile-advanced clean-all help assemble test analyze
+.PHONY: all compile simulate wave web-wave gtkwave clean compile-pipelined simulate-pipelined compile-enhanced simulate-enhanced compile-ultra simulate-ultra compile-advanced clean-all help assemble test analyze compile-cached simulate-cached compile-multicore-cached simulate-multicore-cached compile-systolic simulate-systolic compile-quantum simulate-quantum compile-custom-inst simulate-custom-inst compile-neuromorphic simulate-neuromorphic
