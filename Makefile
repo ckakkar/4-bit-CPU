@@ -403,13 +403,42 @@ assemble:
 	@python3 tools/assembler.py $(ASM_FILE) rtl/instruction_memory_generated.v
 	@echo "Assembly complete! Generated: rtl/instruction_memory_generated.v"
 
-# Run test suite
+# Run full test suite (unit + integration)
 test:
 	@echo "==================================================="
-	@echo "Running CPU test suite..."
+	@echo "Running CPU test suite (unit + integration)..."
 	@echo "==================================================="
 	@python3 tools/test_suite.py
 	@echo "Test suite complete!"
+
+# Run unit tests only (ALU, register file, program counter)
+test-unit:
+	@echo "==================================================="
+	@echo "Running CPU unit tests..."
+	@echo "==================================================="
+	@python3 tools/test_suite.py --unit
+	@echo "Unit tests complete!"
+
+# Compile and run each testbench directly via iverilog/vvp
+test-alu:
+	@echo "Compiling and running ALU testbench..."
+	@iverilog -g2012 -o /tmp/alu_tb.vvp $(RTL_DIR)/alu.v $(SIM_DIR)/alu_tb.v
+	@vvp /tmp/alu_tb.vvp
+
+test-register-file:
+	@echo "Compiling and running Register File testbench..."
+	@iverilog -g2012 -o /tmp/rf_tb.vvp $(RTL_DIR)/register_file.v $(SIM_DIR)/register_file_tb.v
+	@vvp /tmp/rf_tb.vvp
+
+test-program-counter:
+	@echo "Compiling and running Program Counter testbench..."
+	@iverilog -g2012 -o /tmp/pc_tb.vvp $(RTL_DIR)/program_counter.v $(SIM_DIR)/program_counter_tb.v
+	@vvp /tmp/pc_tb.vvp
+
+test-cpu-instr:
+	@echo "Compiling and running CPU Instruction Integration testbench..."
+	@iverilog -g2012 -o /tmp/cpu_instr_tb.vvp $(RTL_FILES) $(SIM_DIR)/cpu_instr_tb.v
+	@vvp /tmp/cpu_instr_tb.vvp
 
 # Analyze performance
 analyze:
@@ -452,10 +481,17 @@ help:
 	@echo "  make compile-neuromorphic - Compile neuromorphic computing system"
 	@echo "  make simulate-neuromorphic - Run neuromorphic system simulation"
 	@echo ""
+	@echo "Testing:"
+	@echo "  make test              - Run full test suite (unit + integration)"
+	@echo "  make test-unit         - Run unit tests only (ALU, RF, PC)"
+	@echo "  make test-alu          - Run ALU unit tests directly"
+	@echo "  make test-register-file - Run register file unit tests directly"
+	@echo "  make test-program-counter - Run program counter unit tests directly"
+	@echo "  make test-cpu-instr    - Run CPU instruction integration tests directly"
+	@echo ""
 	@echo "Development Tools:"
 	@echo "  make assemble ASM_FILE=file.asm - Assemble assembly to Verilog"
 	@echo "  make compile-advanced ASM_FILE=file.asm - Compile with optimizations"
-	@echo "  make test              - Run automated test suite"
 	@echo "  make analyze [VCD_FILE=file.vcd] - Analyze performance from VCD"
 	@echo ""
 	@echo "Waveform Viewers (choose one):"
@@ -469,4 +505,4 @@ help:
 	@echo ""
 	@echo "  make help             - Show this help message"
 
-.PHONY: all compile simulate wave web-wave gtkwave clean compile-pipelined simulate-pipelined compile-enhanced simulate-enhanced compile-ultra simulate-ultra compile-advanced clean-all help assemble test analyze compile-cached simulate-cached compile-multicore-cached simulate-multicore-cached compile-systolic simulate-systolic compile-quantum simulate-quantum compile-custom-inst simulate-custom-inst compile-neuromorphic simulate-neuromorphic
+.PHONY: all compile simulate wave web-wave gtkwave clean compile-pipelined simulate-pipelined compile-enhanced simulate-enhanced compile-ultra simulate-ultra compile-advanced clean-all help assemble test test-unit test-alu test-register-file test-program-counter test-cpu-instr analyze compile-cached simulate-cached compile-multicore-cached simulate-multicore-cached compile-systolic simulate-systolic compile-quantum simulate-quantum compile-custom-inst simulate-custom-inst compile-neuromorphic simulate-neuromorphic

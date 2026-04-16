@@ -3986,16 +3986,55 @@ make assemble ASM_FILE=examples/fibonacci.asm
 - Error checking and reporting
 
 ### Test Suite (`tools/test_suite.py`)
-Automated testing framework:
+
+The test suite compiles and runs Verilog testbenches using Icarus Verilog,
+parses `[PASS]`/`[FAIL]` markers, and prints a per-module summary with
+instruction-level coverage metrics.
+
+#### Running tests
+
 ```bash
-make test
+make test              # full suite: unit + integration (94 assertions)
+make test-unit         # unit tests only (ALU, register file, program counter)
+
+# Run individual testbenches directly:
+make test-alu
+make test-register-file
+make test-program-counter
+make test-cpu-instr
 ```
 
-**Features**:
-- Automated test execution
-- Multiple test case types
-- Test result reporting
-- Register and memory verification
+#### Test levels
+
+| Testbench | File | Assertions | What is tested |
+|-----------|------|-----------|----------------|
+| ALU unit | `sim/alu_tb.v` | 41 | All 14 ALU ops, carry/overflow/zero/negative flags, edge cases |
+| Register file unit | `sim/register_file_tb.v` | 17 | Reset, write/read all registers, R0 write-protection, dual-read ports |
+| Program counter unit | `sim/program_counter_tb.v` | 11 | Reset, increment, hold, load, load-priority, wrap-around |
+| CPU instruction integration | `sim/cpu_instr_tb.v` | 25 | Every ISA opcode end-to-end; JUMP/JZ/JNZ correctness; multi-instruction sequences |
+
+#### Coverage report
+
+`make test` prints an instruction-coverage table and saves `test_report.json`:
+
+```
+ISA instructions tested: 16/16 (100%)
+  ✓  LOADI   ✓  ADD    ✓  SUB    ✓  AND
+  ✓  OR      ✓  XOR    ✓  STORE  ✓  LOAD
+  ✓  SHL     ✓  SHR    ✓  MOV    ✓  NOT
+  ✓  JUMP    ✓  JZ     ✓  JNZ    ✓  HALT
+```
+
+#### Bug fixed during test development
+
+Writing the JZ/JNZ integration tests exposed a bug in `rtl/control_unit.v`:
+the decode stage overwrote the `immediate` register (which holds the jump
+target address) with `8'h00` to perform the zero comparison, causing both
+instructions to always jump to address 0 regardless of the encoded target.
+
+**Fix**: the comparison now uses `R0` (always zero, write-protected) as
+the second operand instead of the immediate value, so the jump address is
+preserved through the execute stage.
 
 ### Performance Analyzer (`tools/performance_analyzer.py`)
 Analyze VCD files and generate performance reports:
@@ -4149,6 +4188,12 @@ The project includes a comprehensive Makefile for building and simulation:
 | `gtkwave` | Run simulation and open GTKWave | `make gtkwave` |
 | `clean` | Remove generated files | `make clean` |
 | `help` | Display help message | `make help` |
+| **`test`** | **Run full RTL test suite (94 assertions)** | `make test` |
+| `test-unit` | Run unit tests only (ALU, RF, PC) | `make test-unit` |
+| `test-alu` | Run ALU testbench directly | `make test-alu` |
+| `test-register-file` | Run register file testbench | `make test-register-file` |
+| `test-program-counter` | Run program counter testbench | `make test-program-counter` |
+| `test-cpu-instr` | Run CPU instruction integration tests | `make test-cpu-instr` |
 
 ### Target Dependencies
 

@@ -288,29 +288,27 @@ module control_unit (
                         OP_JZ: begin
                             // JZ: Jump if register is zero
                             // (assembly: JZ Rs, addr) - Jump if Rs == 0
-                            // Set up ALU to compare reg1 with zero (will happen in same cycle)
-                            // reg1_addr already set to reg1, ALU will compute reg1 - 0
-                            reg_dest_addr <= 3'b000;  // Don't write
-                            alu_op <= 4'b0001;  // ALU_SUB: reg1 - 0
-                            use_immediate <= 1;  // Use immediate 0
-                            immediate <= 8'b00000000;  // Compare with zero
+                            // Use R0 (always 0) as the comparison value so immediate retains
+                            // the jump target address set earlier in this decode block.
+                            reg_dest_addr <= 3'b000;
+                            alu_op <= 4'b0001;  // ALU_SUB: reg1 - R0(=0)
+                            use_immediate <= 0;  // Use R0 (always 0) to preserve jump address
+                            reg2_addr <= 3'b000;  // R0 is hardwired to 0
                             load_from_mem <= 0;
-                            reg_write_enable <= 0;  // Don't store result
-                            // The ALU is combinational, so zero_flag will be valid after this cycle
-                            // But since we're in a clocked always block, we need next state to check
-                            state <= STATE_EXECUTE;  // Check zero flag in execute state
+                            reg_write_enable <= 0;
+                            state <= STATE_EXECUTE;
                         end
-                        
+
                         OP_JNZ: begin
                             // JNZ: Jump if register is non-zero
                             // (assembly: JNZ Rs, addr) - Jump if Rs != 0
                             reg_dest_addr <= 3'b000;
-                            alu_op <= 4'b0001;  // ALU_SUB: reg1 - 0
-                            use_immediate <= 1;
-                            immediate <= 8'b00000000;
+                            alu_op <= 4'b0001;  // ALU_SUB: reg1 - R0(=0)
+                            use_immediate <= 0;  // Use R0 (always 0) to preserve jump address
+                            reg2_addr <= 3'b000;
                             load_from_mem <= 0;
                             reg_write_enable <= 0;
-                            state <= STATE_EXECUTE;  // Check zero flag in execute state
+                            state <= STATE_EXECUTE;
                         end
                         
                         OP_HALT: begin
