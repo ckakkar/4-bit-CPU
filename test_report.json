@@ -1,0 +1,67 @@
+{
+  "total_pass": 94,
+  "total_fail": 0,
+  "pass_rate": "100.0%",
+  "suites": {
+    "alu": {
+      "name": "ALU Unit Tests",
+      "pass": 41,
+      "fail": 0,
+      "instructions": [
+        "ADD",
+        "SUB",
+        "AND",
+        "OR",
+        "XOR",
+        "NOT",
+        "SHL",
+        "SHR",
+        "SAR",
+        "LT",
+        "LTU",
+        "EQ",
+        "MOV(PASS)",
+        "LOADI(PASS_B)"
+      ]
+    },
+    "register_file": {
+      "name": "Register File Unit Tests",
+      "pass": 17,
+      "fail": 0,
+      "instructions": []
+    },
+    "program_counter": {
+      "name": "Program Counter Unit Tests",
+      "pass": 11,
+      "fail": 0,
+      "instructions": [
+        "JUMP",
+        "JZ",
+        "JNZ"
+      ]
+    },
+    "cpu_instr": {
+      "name": "CPU Instruction Integration Tests",
+      "pass": 25,
+      "fail": 0,
+      "instructions": [
+        "LOADI",
+        "ADD",
+        "SUB",
+        "AND",
+        "OR",
+        "XOR",
+        "NOT",
+        "MOV",
+        "SHL",
+        "SHR",
+        "STORE",
+        "LOAD",
+        "JUMP",
+        "JZ",
+        "JNZ",
+        "HALT"
+      ]
+    }
+  }
+}
